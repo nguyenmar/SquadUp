@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "991055521532",
+    "project_id": "squadup-14f9b",
+    "storage_bucket": "squadup-14f9b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991055521532:android:58ae17e9ee0cf041f6d979",
+        "android_client_info": {
+          "package_name": "com.ancientones.squadup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991055521532-vg44odsqoen3nk7o36abgl162i27ujs1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcWnaGq0mGRgfbbWQ7XIcpB0GwV1F4qVc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991055521532-vg44odsqoen3nk7o36abgl162i27ujs1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
