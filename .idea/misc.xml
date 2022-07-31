@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/jacje/Desktop/School/SFU Summer 2022/CMPT 362/CMPT362_Project/app/src/main/res/layout/activity_auth.xml" value="0.5541666666666667" />
+        <entry key="..\:/Users/jacje/Desktop/School/SFU Summer 2022/CMPT 362/CMPT362_Project/app/src/main/res/layout/activity_auth_signin.xml" value="0.5541666666666667" />
+        <entry key="..\:/Users/jacje/Desktop/School/SFU Summer 2022/CMPT 362/CMPT362_Project/app/src/main/res/layout/activity_auth_signup.xml" value="0.5541666666666667" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.46195652173913043" />
         <entry key="app/src/main/res/layout/activity_profile_signin.xml" value="0.5635416666666667" />
         <entry key="app/src/main/res/layout/activity_profile_signup.xml" value="0.5480072463768116" />
