@@ -6,27 +6,33 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.ancientones.squadup.R
+import com.ancientones.squadup.databinding.FragmentChatListBinding
 
 class ChatListFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = ChatListFragment()
-    }
+    private var _binding: FragmentChatListBinding? = null
+
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
 
     private lateinit var viewModel: ChatListViewModel
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_chat_list, container, false)
+    ): View {
+        viewModel = ViewModelProvider(this).get(ChatListViewModel::class.java);
+
+        _binding = FragmentChatListBinding.inflate(inflater, container, false);
+        val root: View = binding.root;
+        return root;
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ChatListViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onDestroyView() {
+        super.onDestroyView();
+        _binding = null;
     }
 
 }
