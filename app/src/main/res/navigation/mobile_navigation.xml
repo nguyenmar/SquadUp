@@ -8,18 +8,10 @@
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.ancientones.squadup.ui.home.HomeFragment"
-        android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.ancientones.squadup.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
-
-    <fragment
-        android:id="@+id/navigation_profile"
-        android:name="com.ancientones.squadup.ui.profile.ProfileFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_chat"
+        android:name="com.ancientones.squadup.ui.chat.ChatListFragment"
+        tools:layout="@layout/fragment_chat_list" />
 </navigation>

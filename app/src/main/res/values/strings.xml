@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">SquadUp</string>
+<!--    Navigation titles-->
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_chat">Chat</string>
 
     <string name="squad_up_header">SquadUp</string>
     <string name="squad_up_descriptions">A drop-in sports application designed to help users find locally organized sports drop-ins and make new friends.</string>
