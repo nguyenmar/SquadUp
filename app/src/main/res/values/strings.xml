@@ -3,6 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_drop_ins">Drop-ins</string>
 
     <string name="squad_up_header">SquadUp</string>
     <string name="squad_up_descriptions">A drop-in sports application designed to help users find locally organized sports drop-ins and make new friends.</string>
@@ -15,4 +16,6 @@
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="confirm_password">Confirm password</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
