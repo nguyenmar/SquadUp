@@ -23,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/email_address_header"
+        android:inputType="textEmailAddress"
         android:id="@+id/sign_in_email_address"
         android:layout_marginBottom="30dp"/>
 
@@ -35,6 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/password_header"
+        android:inputType="textPassword"
         android:id="@+id/sign_in_password"
         android:layout_marginBottom="230dp"/>
 
@@ -42,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
+        android:id="@+id/sign_in_btn"
         android:text="@string/sign_in"/>
 
     <TextView
