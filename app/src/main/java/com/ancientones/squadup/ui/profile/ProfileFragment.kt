@@ -63,7 +63,9 @@ class ProfileFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == R.id.editMenuBtn) {
                     // TODO: uncomment when EditProfileActivity is ready
-//                    startActivity(Intent(requireActivity(), EditProfileActivity::class.java))
+                    val intent = Intent(requireActivity(), EditProfileActivity::class.java)
+                    intent.putExtra("full_name", "${firstName} ${lastName}")
+                    startActivity(intent)
                 }
                 return true
             }

@@ -1,9 +1,12 @@
 package com.ancientones.squadup.ui.profile
 
+import android.content.Intent
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.ancientones.squadup.MainActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase

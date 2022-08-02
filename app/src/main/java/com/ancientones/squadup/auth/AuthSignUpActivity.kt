@@ -1,6 +1,8 @@
 package com.ancientones.squadup.auth
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.view.View
 import android.widget.EditText
@@ -8,6 +10,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
+import com.ancientones.squadup.MainActivity
 import com.ancientones.squadup.R
 import com.ancientones.squadup.User
 import com.ancientones.squadup.databinding.ActivityAuthSignupBinding
@@ -75,6 +78,11 @@ class AuthSignUpActivity : AppCompatActivity() {
                                     if (task.isSuccessful) {
                                         Toast.makeText(this, "User successfully registered!", Toast.LENGTH_SHORT).show()
                                         progressBar.visibility = View.VISIBLE
+                                        val userAuth = mAuth.currentUser
+                                        val intent = Intent(this, MainActivity::class.java).apply {
+                                            putExtra("user", userAuth)
+                                        }
+                                        startActivity(intent)
                                     } else {
                                         Toast.makeText(this, "User failed to register.", Toast.LENGTH_SHORT).show()
                                         progressBar.visibility = View.GONE
