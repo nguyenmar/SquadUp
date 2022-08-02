@@ -1,49 +1,73 @@
 package com.ancientones.squadup.ui.profile
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
+import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import com.ancientones.squadup.databinding.FragmentNotificationsBinding
-import com.google.firebase.analytics.FirebaseAnalytics
-
+import com.ancientones.squadup.R
+import com.ancientones.squadup.databinding.FragmentProfileBinding
 
 class ProfileFragment : Fragment() {
 
-    private var _binding: FragmentNotificationsBinding? = null
-    private var mFirebaseAnalytics: FirebaseAnalytics? = null
+    private var _binding: FragmentProfileBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val notificationsViewModel =
-            ViewModelProvider(this).get(ProfileViewModel::class.java)
+    // TODO: add rest of ProfileViewModel user details
+    // User Profile details
+    private lateinit var profileViewModel: ProfileViewModel
+    private var firstName: String = ""
+    private var lastName: String = ""
 
-        _binding = FragmentNotificationsBinding.inflate(inflater, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        profileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
+        profileViewModel.fetchUser()
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textNotifications
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        profileViewModel.firstName.observe(requireActivity()) {
+            firstName = it
+            if(firstName.isNotEmpty() && lastName.isNotEmpty()) {
+                binding.username.text = "$firstName $lastName"
+            }
         }
 
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(requireActivity())
-        val bundle = Bundle()
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "12345")
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "hello_world_name")
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "test_string")
-        mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+        profileViewModel.lastName.observe(requireActivity()) {
+            lastName = it
+            if(firstName.isNotEmpty() && lastName.isNotEmpty()) {
+                binding.username.text = "$firstName $lastName"
+            }
+        }
 
         return root
+    }
+
+    // Adds an edit button in toolbar
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.profile_menu, menu)
+            }
+
+            // Handle the menu selection
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.editMenuBtn) {
+                    // TODO: uncomment when EditProfileActivity is ready
+//                    startActivity(Intent(requireActivity(), EditProfileActivity::class.java))
+                }
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {
