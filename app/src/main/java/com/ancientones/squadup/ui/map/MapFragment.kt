@@ -24,9 +24,13 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.firestore.*
+import com.google.firebase.ktx.Firebase
+
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
+import java.util.concurrent.Flow
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -43,6 +47,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapViewModel: MapViewModel
 
     private lateinit var fab: FloatingActionButton
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,8 +106,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun updateMap(bundle: Bundle) {
 
         locationList = toArrayList(bundle.getString(TrackingService.LOC_KEY)!!)
-
-
 
         if (!mapCentered) {
             val latLng = locationList.last()
