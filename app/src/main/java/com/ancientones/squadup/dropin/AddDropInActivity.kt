@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityAddDropInBinding
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.Places
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import java.io.IOException
@@ -23,9 +22,6 @@ class AddDropInActivity : AppCompatActivity() {
 
         binding = ActivityAddDropInBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, getString(R.string.apiKey))
-        }
 
         val listOfSports = resources.getStringArray(R.array.listOfSports)
         val sportSpinner = findViewById<Spinner>(R.id.sport_spinner)
@@ -36,7 +32,7 @@ class AddDropInActivity : AppCompatActivity() {
 
     }
 
-    fun saveFireStore(){
+    private fun saveFireStore(){
         val db = FirebaseFirestore.getInstance()
         val dropin: MutableMap<String,Any> = HashMap()
         val latlng = getLocationFromAddress(binding.locationText.text.toString())

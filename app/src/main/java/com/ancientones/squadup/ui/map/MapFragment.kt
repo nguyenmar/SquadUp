@@ -1,11 +1,14 @@
 package com.ancientones.squadup.ui.map
 
 import android.Manifest
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -88,6 +91,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
 
+
     override fun onMapReady(googleMap: GoogleMap) {
         checkPermission()
         mMap = googleMap
@@ -101,6 +105,24 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             updateMap(it)
         }
 
+        val db = FirebaseFirestore.getInstance()
+        db.collection("dropin")
+            .addSnapshotListener { value, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                val cities = ArrayList<GeoPoint>()
+                for (doc in value!!) {
+                    doc.getGeoPoint("location")?.let {
+                        cities.add(it)
+                        var location: LatLng = LatLng(it.latitude, it.longitude)
+                        mMap.addMarker(MarkerOptions().position(location).title("Marker"))
+                    }
+                }
+                Log.d(TAG, "Current cites in CA: $cities")
+            }
     }
 
     private fun updateMap(bundle: Bundle) {
