@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.MapViewModel
 import com.ancientones.squadup.R
 import com.ancientones.squadup.TrackingService
+import com.ancientones.squadup.dropin.AddDropInActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -75,21 +76,21 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     //Floating Action Button OnClick, change to what action is needed
     private fun fabOnClick() {
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Clicked", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            val intent = Intent(context, AddDropInActivity::class.java)
+            startActivity(intent)
         }
 
     }
 
 
     override fun onMapReady(googleMap: GoogleMap) {
+        checkPermission()
         mMap = googleMap
         mMap.isMyLocationEnabled = true
         mMap.uiSettings.isMyLocationButtonEnabled = true
 
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-        checkPermission()
 
         mapViewModel.bundle.observe(this) {
             updateMap(it)

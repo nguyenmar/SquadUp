@@ -18,4 +18,21 @@
     <string name="confirm_password">Confirm password</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Drop-in Strings -->
+
+    <string name="add_drop_in_header">Drop-In Details</string>
+    <string name="sport_header">Sport</string>
+    <string name="skill_level_header">Skill Level</string>
+    <string name="location_header">Location</string>
+    <string name="time_header">Time</string>
+    <string name="participants_header">Participants</string>
+    <string name="participants">Number of Players</string>
+    <string name="comments_header">Comments</string>
+    <string name="comments">About Drop-in</string>
+    <string name="create_drop_in">Create Drop-in</string>
+    <string name="update_drop_in">Update Drop-in</string>
+    <string name="details">Details</string>
+    <string name="address">Address</string>
+
 </resources>
