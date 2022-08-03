@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -56,6 +57,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage-ktx:20.0.1'
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.6'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    // Firebase UI
+    implementation 'com.firebaseui:firebase-ui-firestore:8.0.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
