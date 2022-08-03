@@ -41,10 +41,22 @@ class AddDropInActivity : AppCompatActivity() {
         if (latlng != null) {
             dropin["location"] = GeoPoint(latlng.latitude, latlng.longitude)
         }
-        dropin["sport"] = binding.sportSpinner.selectedItem.toString()
-        dropin["skillLevel"] = binding.levelSpinner.selectedItem.toString()
-        dropin["comments"] = binding.commentsText.text.toString()
-        dropin["numParticipants"] = binding.participantsText.text
+
+        if (binding.sportSpinner.selectedItem != null) {
+            dropin["sport"] = binding.sportSpinner.selectedItem.toString()
+        }
+
+        if (binding.levelSpinner.selectedItem != null) {
+            dropin["skillLevel"] = binding.levelSpinner.selectedItem.toString()
+        }
+
+        if (binding.commentsText.text != null) {
+            dropin["comments"] = binding.commentsText.text.toString()
+        }
+
+        if (binding.participantsText.text != null) {
+            dropin["numParticipants"] = binding.participantsText.text.toString()
+        }
 
 
         db.collection("dropin")
@@ -53,6 +65,8 @@ class AddDropInActivity : AppCompatActivity() {
             }
             .addOnFailureListener {Toast.makeText((this), "Drop-in failed to be created", Toast.LENGTH_SHORT).show()
             }
+
+        finish()
     }
 
     fun getLocationFromAddress(addressString: String): LatLng? {
