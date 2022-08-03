@@ -20,6 +20,7 @@ import com.ancientones.squadup.MapViewModel
 import com.ancientones.squadup.R
 import com.ancientones.squadup.TrackingService
 import com.ancientones.squadup.dropin.AddDropInActivity
+import com.ancientones.squadup.dropin.DropInActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -106,23 +107,36 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
         val db = FirebaseFirestore.getInstance()
+        var location: LatLng = LatLng(0.0,0.0)
+
         db.collection("dropin")
             .addSnapshotListener { value, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
                     return@addSnapshotListener
                 }
-
-                val cities = ArrayList<GeoPoint>()
-                for (doc in value!!) {
-                    doc.getGeoPoint("location")?.let {
-                        cities.add(it)
-                        var location: LatLng = LatLng(it.latitude, it.longitude)
-                        mMap.addMarker(MarkerOptions().position(location).title("Marker"))
+                if(value != null){
+                    val documents = value.documents
+                    documents.forEach{
+                        val documentID = it.id
+                        val geoPoint = it.getGeoPoint("location")
+                        println(documentID)
+                        println(geoPoint)
+                        if (geoPoint != null) {
+                            location = LatLng(geoPoint.latitude, geoPoint.longitude)
+                        }
+                        mMap.addMarker(MarkerOptions().position(location).title(documentID))
                     }
                 }
-                Log.d(TAG, "Current cites in CA: $cities")
             }
+
+
+        mMap.setOnMarkerClickListener { marker ->
+            val intent = Intent(context, DropInActivity::class.java)
+            intent.putExtra("documentID", marker.title)
+            startActivity(intent)
+            true
+        }
     }
 
     private fun updateMap(bundle: Bundle) {
