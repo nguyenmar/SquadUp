@@ -16,6 +16,7 @@ class ProfileViewModel : ViewModel() {
 
     private val _firstName = MutableLiveData<String>()
     private val _lastName = MutableLiveData<String>()
+    private val _userAge = MutableLiveData<String>()
     private val _userSex = MutableLiveData<String>()
     private val _userPhone = MutableLiveData<String>()
     private val _userHeight = MutableLiveData<String>()
@@ -34,6 +35,11 @@ class ProfileViewModel : ViewModel() {
     val lastName: LiveData<String>
         get(){
             return _lastName
+        }
+
+    val userAge: LiveData<String>
+        get(){
+            return _userAge
         }
 
     val userSex: LiveData<String>
@@ -77,6 +83,7 @@ class ProfileViewModel : ViewModel() {
 
                 _firstName.value = userMap["firstName"]
                 _lastName.value = userMap["lastName"]
+                _userAge.value = userMap["userAge"]
                 _userSex.value = userMap["userSex"]
                 _userHeight.value = userMap["userHeight"].toString()
                 _userPhone.value = userMap["userPhone"]

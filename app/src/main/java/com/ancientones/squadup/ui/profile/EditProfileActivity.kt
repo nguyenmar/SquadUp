@@ -45,7 +45,8 @@ class EditProfileActivity : AppCompatActivity() {
         sexRadioButtonFemale = findViewById(R.id.radio_female)
 
         val fName = intent.getStringExtra("firstName")
-        val lname = intent.getStringExtra("lastName")
+        val lName = intent.getStringExtra("lastName")
+        val age = intent.getStringExtra("userAge")
         val sex = intent.getStringExtra("userSex")
         val height = intent.getStringExtra("userHeight")
         val phoneNumber = intent.getStringExtra("userPhone")
@@ -57,7 +58,8 @@ class EditProfileActivity : AppCompatActivity() {
         }
         userID = intent.getStringExtra("userID").toString()
         fNameEditText.setText(fName)
-        lNameEditText.setText(lname)
+        lNameEditText.setText(lName)
+        ageEditText.setText(age)
         heightEditText.setText(height)
         phoneNumberEditText.setText(phoneNumber)
         userDescriptionEditText.setText(userDescription)
@@ -75,6 +77,7 @@ class EditProfileActivity : AppCompatActivity() {
         val db = Firebase.database.getReference("Users").child(userID)
         db.child("firstName").setValue("${fNameEditText.text}")
         db.child("lastName").setValue("${lNameEditText.text}")
+        db.child("userAge").setValue("${ageEditText.text}")
         val selectedSex = sexRadioGroup.checkedRadioButtonId
         val radioButton = findViewById<RadioButton>(selectedSex)
         db.child("userSex").setValue("${radioButton.text}")

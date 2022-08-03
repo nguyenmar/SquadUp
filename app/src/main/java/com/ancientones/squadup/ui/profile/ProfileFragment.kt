@@ -53,6 +53,7 @@ class ProfileFragment : Fragment() {
                     val intent = Intent(requireActivity(), EditProfileActivity::class.java)
                     intent.putExtra("firstName", "${profileViewModel.firstName.value}")
                     intent.putExtra("lastName", "${profileViewModel.lastName.value}")
+                    intent.putExtra("userAge", "${profileViewModel.userAge.value}")
                     intent.putExtra("userSex", "${profileViewModel.userSex.value}")
                     intent.putExtra("userHeight", "${profileViewModel.userHeight.value}")
                     intent.putExtra("userPhone", "${profileViewModel.userPhone.value}")
@@ -66,6 +67,7 @@ class ProfileFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         val usernameView = view.findViewById<TextView>(R.id.username)
+        val userAgeView = view.findViewById<TextView>(R.id.userAge)
         val userHeightView = view.findViewById<TextView>(R.id.userHeight)
         val userSexView = view.findViewById<TextView>(R.id.userSex)
         val userPhoneView = view.findViewById<TextView>(R.id.userPhone)
@@ -79,6 +81,10 @@ class ProfileFragment : Fragment() {
 
         profileViewModel.lastName.observe(requireActivity()) {
             usernameView.text = "${profileViewModel.firstName.value} ${profileViewModel.lastName.value}"
+        }
+
+        profileViewModel.userAge.observe(requireActivity()) {
+            userAgeView.text = "${profileViewModel.userAge.value}"
         }
 
         profileViewModel.userSex.observe(requireActivity()) {
