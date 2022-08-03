@@ -63,7 +63,7 @@ class TrackingService : Service(), LocationListener {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     override fun onLocationChanged(location: Location) {
@@ -83,11 +83,13 @@ class TrackingService : Service(), LocationListener {
 
                 bundle.putString(LOC_KEY, fromArrayList(locationList))
 
-                val message = msgHandler!!.obtainMessage()
+                val message = msgHandler?.obtainMessage()
 
-                message.data = bundle
-                message.what = 10
-                msgHandler!!.sendMessage(message)
+                if (message != null) {
+                    message.data = bundle
+                    message.what = 10
+                    msgHandler?.sendMessage(message)
+                }
             }
         }
         catch (t: Throwable) {

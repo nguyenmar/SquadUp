@@ -16,9 +16,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.ancientones.squadup.MapViewModel
 import com.ancientones.squadup.R
 import com.ancientones.squadup.TrackingService
+import com.ancientones.squadup.databinding.ActivityMainBinding
 import com.ancientones.squadup.dropin.AddDropInActivity
 import com.ancientones.squadup.dropin.DropInActivity
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.*
@@ -52,11 +60,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var fab: FloatingActionButton
 
+    private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        intent = Intent(requireActivity(), TrackingService::class.java)
+        if (isAdded) {
+            intent = Intent(requireActivity(), TrackingService::class.java)
+        }
         mapViewModel = ViewModelProvider(this)[MapViewModel::class.java]
 
         locationList = ArrayList()
@@ -69,6 +81,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     ): View? {
 
         val rootView: View = inflater.inflate(R.layout.fragment_map, container, false)
+
+
 
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -141,7 +155,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private fun updateMap(bundle: Bundle) {
 
-        locationList = toArrayList(bundle.getString(TrackingService.LOC_KEY)!!)
+        if (bundle.getString(TrackingService.LOC_KEY) != null) {
+                locationList = toArrayList(bundle.getString(TrackingService.LOC_KEY)!!)
+            }
 
         if (!mapCentered) {
             val latLng = locationList.last()
