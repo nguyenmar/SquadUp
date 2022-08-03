@@ -19,8 +19,13 @@ class AuthActivity : AppCompatActivity() {
         setContentView(binding.root)
     }
 
-    fun onClick(view: View) {
+    fun onClickSignUp(view: View) {
         val intent = Intent(this, AuthSignUpActivity::class.java)
+        startActivity(intent)
+    }
+
+    fun onClickSignIn(view: View) {
+        val intent = Intent(this, AuthSignInActivity::class.java)
         startActivity(intent)
     }
 }
