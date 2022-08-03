@@ -1,5 +1,6 @@
 package com.ancientones.squadup.ui.profile
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -15,10 +16,8 @@ import com.ancientones.squadup.databinding.FragmentProfileBinding
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
-
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
-
     private lateinit var profileViewModel: ProfileViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +34,7 @@ class ProfileFragment : Fragment() {
         return root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Adds an edit button in toolbar
         val menuHost: MenuHost = requireActivity()
@@ -47,7 +47,13 @@ class ProfileFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == R.id.editMenuBtn) {
                     val intent = Intent(requireActivity(), EditProfileActivity::class.java)
-                    intent.putExtra("full_name", "${profileViewModel.firstName.value} ${profileViewModel.lastName.value}")
+                    intent.putExtra("firstName", "${profileViewModel.firstName.value}")
+                    intent.putExtra("lastName", "${profileViewModel.lastName.value}")
+                    intent.putExtra("userSex", "${profileViewModel.userSex.value}")
+                    intent.putExtra("userHeight", "${profileViewModel.userHeight.value}")
+                    intent.putExtra("userPhone", "${profileViewModel.userPhone.value}")
+                    intent.putExtra("userDescription", "${profileViewModel.userDescription.value}")
+
                     startActivity(intent)
                 }
                 return true
@@ -55,6 +61,10 @@ class ProfileFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         val usernameView = view.findViewById<TextView>(R.id.username)
+        val userHeightView = view.findViewById<TextView>(R.id.userHeight)
+        val userSexView = view.findViewById<TextView>(R.id.userSex)
+        val userPhoneView = view.findViewById<TextView>(R.id.userPhone)
+        val userDescriptionView = view.findViewById<TextView>(R.id.userDescription)
 
         profileViewModel.firstName.observe(requireActivity()) {
             usernameView.text = "${profileViewModel.firstName.value} ${profileViewModel.lastName.value}"
@@ -62,6 +72,22 @@ class ProfileFragment : Fragment() {
 
         profileViewModel.lastName.observe(requireActivity()) {
             usernameView.text = "${profileViewModel.firstName.value} ${profileViewModel.lastName.value}"
+        }
+
+        profileViewModel.userSex.observe(requireActivity()) {
+            userSexView.text = "${profileViewModel.userSex.value}"
+        }
+
+        profileViewModel.userHeight.observe(requireActivity()) {
+            userHeightView.text = "${profileViewModel.userHeight.value} cm"
+        }
+
+        profileViewModel.userPhone.observe(requireActivity()) {
+            userPhoneView.text = "${profileViewModel.userPhone.value}"
+        }
+
+        profileViewModel.userDescription.observe(requireActivity()) {
+            userDescriptionView.text = "${profileViewModel.userDescription.value}"
         }
     }
 

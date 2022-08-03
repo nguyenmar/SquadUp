@@ -77,6 +77,11 @@ class ProfileViewModel : ViewModel() {
 
                 _firstName.value = userMap["firstName"]
                 _lastName.value = userMap["lastName"]
+                _userSex.value = userMap["userSex"]
+                _userHeight.value = userMap["userHeight"].toString()
+                _userPhone.value = userMap["userPhone"]
+                _userDescription.value = userMap["userDescription"]
+
             }
             .addOnFailureListener{
                 Log.e("firebase", "error getting data", it)
