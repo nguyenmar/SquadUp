@@ -10,8 +10,8 @@
         android:name="com.ancientones.squadup.ui.home.HomeFragment"
         tools:layout="@layout/fragment_home" />
 
-    <fragment
+    <activity
         android:id="@+id/navigation_chat"
-        android:name="com.ancientones.squadup.ui.chat.ChatListFragment"
-        tools:layout="@layout/fragment_chat_list" />
+        android:name="com.ancientones.squadup.ui.chat.ChatActivity"
+        tools:layout="@layout/activity_chat" />
 </navigation>
