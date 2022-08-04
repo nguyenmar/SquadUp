@@ -16,10 +16,16 @@ class AuthSignInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAuthSigninBinding
     private lateinit var auth: FirebaseAuth
 
-    // TODO: check if user is logged in from AuthActivity
-
     companion object {
         private const val TAG = "EmailPasswordSignIn"
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if(auth.currentUser != null) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +47,11 @@ class AuthSignInActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding.createAccountBtn.setOnClickListener{
+            val intent = Intent(this, AuthSignUpActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun signIn(email: String, password: String) {
@@ -51,11 +62,8 @@ class AuthSignInActivity : AppCompatActivity() {
                     Log.d(TAG, "signInWithEmail:success")
                     val user = auth.currentUser
                     Log.d(TAG, user.toString())
-                    val intent = Intent(this, MainActivity::class.java).apply {
-                        putExtra("user", user)
-                    }
+                    val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
-//                    finish() // Prevents user from going back after successful auth
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)

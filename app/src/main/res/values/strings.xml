@@ -35,4 +35,6 @@
 
     <string name="sex_male_option">Male</string>
     <string name="sex_female_option">Female</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="log_out">Log out</string>
 </resources>

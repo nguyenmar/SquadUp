@@ -24,12 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".AuthActivity"/>
+        <activity android:name=".auth.AuthSignUpActivity"/>
         <activity android:name=".MainActivity"/>
         <activity android:name=".ui.profile.EditProfileActivity"/>
-        <!--        <activity android:name=".auth.AuthSignInActivity" android:noHistory="true"/>-->
-        <activity android:name=".auth.AuthSignUpActivity"/>
     </application>
 
 </manifest>

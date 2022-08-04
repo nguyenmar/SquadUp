@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
+import com.ancientones.squadup.auth.AuthSignInActivity
 import com.ancientones.squadup.databinding.FragmentProfileBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -61,6 +62,12 @@ class ProfileFragment : Fragment() {
                     intent.putExtra("userID", "${Firebase.auth.currentUser!!.uid}")
 
                     startActivity(intent)
+                }
+                else if (menuItem.itemId == R.id.logoutBtn) {
+                    val intent = Intent(requireActivity(), AuthSignInActivity::class.java)
+                    Firebase.auth.signOut()
+                    startActivity(intent)
+                    requireActivity().finish()
                 }
                 return true
             }
