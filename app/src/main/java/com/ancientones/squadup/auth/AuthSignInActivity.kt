@@ -20,14 +20,6 @@ class AuthSignInActivity : AppCompatActivity() {
         private const val TAG = "EmailPasswordSignIn"
     }
 
-    override fun onStart() {
-        super.onStart()
-        if(auth.currentUser != null) {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,11 +38,6 @@ class AuthSignInActivity : AppCompatActivity() {
                 Toast.makeText(baseContext, "Please enter a valid email and password.",
                     Toast.LENGTH_SHORT).show()
             }
-        }
-
-        binding.createAccountBtn.setOnClickListener{
-            val intent = Intent(this, AuthSignUpActivity::class.java)
-            startActivity(intent)
         }
     }
 
