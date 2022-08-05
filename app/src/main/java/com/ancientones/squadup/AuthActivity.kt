@@ -1,8 +1,10 @@
 package com.ancientones.squadup
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.ancientones.squadup.auth.AuthSignInActivity
 import com.ancientones.squadup.auth.AuthSignUpActivity
@@ -15,6 +17,7 @@ class AuthActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAuthBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var videoView: VideoView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +35,16 @@ class AuthActivity : AppCompatActivity() {
             startActivity(intent)
         }
         setContentView(binding.root)
+
+        videoView = findViewById(R.id.videoView)
+        val uri: Uri = Uri.parse("android.resource://"+packageName+"/"+R.raw.auth_video)
+        videoView.setVideoURI(uri)
+        videoView.start()
+        videoView.setOnPreparedListener {
+            it.isLooping = true
+        }
+
+
     }
 
     override fun onStart() {
@@ -42,6 +55,11 @@ class AuthActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT).show()
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        videoView.start()
     }
 
 }
