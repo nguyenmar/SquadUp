@@ -1,19 +1,29 @@
 package com.ancientones.squadup.ui.profile
 
+import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.RadioGroup
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.ancientones.squadup.R
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 
 class EditProfileActivity : AppCompatActivity() {
     lateinit var imageView: ImageView
@@ -27,13 +37,32 @@ class EditProfileActivity : AppCompatActivity() {
     lateinit var sexRadioGroup: RadioGroup
     lateinit var sexRadioButtonMale: RadioButton
     lateinit var sexRadioButtonFemale: RadioButton
+    lateinit var imageUri: Uri
+    lateinit var firebaseStorage: FirebaseStorage
+    lateinit var storageReference: StorageReference
+    var newPhotoFlag: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
+        checkPermissions(this)
+
+        firebaseStorage = Firebase.storage
+        storageReference = firebaseStorage.reference
+        userID = intent.getStringExtra("userID").toString()
         imageView = findViewById(R.id.display_picture)
-        imageView.setImageResource(R.drawable.temporary_display_photo)
+
+        val imageRef = storageReference.child("images/${userID}")
+        imageRef.getBytes(1024 * 1024).addOnSuccessListener {
+            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+            imageView.setImageBitmap(bitmap)
+        }.addOnFailureListener() {
+            println("DEBUG: User does not currently have a set display photo.")
+            imageView.setImageResource(R.drawable.temporary_display_photo)
+        }
+        imageUri = Uri.parse("android.resource://com.ancientones.squadup/drawable/temporary_display_photo")
+
         fNameEditText = findViewById(R.id.edit_profile_fname)
         lNameEditText = findViewById(R.id.edit_profile_lname)
         ageEditText = findViewById(R.id.edit_profile_age)
@@ -56,7 +85,6 @@ class EditProfileActivity : AppCompatActivity() {
         } else if (sex.equals("Female")) {
             sexRadioButtonFemale.isChecked = true
         }
-        userID = intent.getStringExtra("userID").toString()
         fNameEditText.setText(fName)
         lNameEditText.setText(lName)
         ageEditText.setText(age)
@@ -84,25 +112,53 @@ class EditProfileActivity : AppCompatActivity() {
         db.child("userHeight").setValue(heightEditText.text.toString().toInt())
         db.child("userPhone").setValue("${phoneNumberEditText.text}")
         db.child("userDescription").setValue("${userDescriptionEditText.text}")
+        if (newPhotoFlag == 0) {
+            uploadPicture()
+        }
+
         finish()
     }
 
     fun displayPictureOnClick(view: View){
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.change_display_photo).setItems(R.array.change_display_photo_array,
-            DialogInterface.OnClickListener { dialog, which ->
-                if(which == 0) {    //Open Camera
-//                    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//                    intent.putExtra(MediaStore.EXTRA_OUTPUT, tempImageUri)
-//                    cameraResult.launch(intent)
-                } else {            //Select from Gallery
-//                    val intent = Intent(Intent.ACTION_PICK)
-//                    intent.setType("image/*")
-//                    result.launch(intent)
-                }
+            DialogInterface.OnClickListener { _, _ ->
+                val intent = Intent(Intent.ACTION_PICK)
+                intent.type = "image/*"
+                intent.action = Intent.ACTION_GET_CONTENT
+                galleryResult.launch(intent)
             })
 
         builder.show()
     }
 
-}
+    fun checkPermissions(activity: Activity?) {
+        if (Build.VERSION.SDK_INT < 23) return
+        if (ContextCompat.checkSelfPermission(
+                activity!!,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
+                0
+            )
+        }
+    }
+
+    private val galleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if(it.resultCode == Activity.RESULT_OK) {
+            imageUri = it.data?.data!!
+            imageView.setImageURI(imageUri)
+            newPhotoFlag = 0
+        }
+    }
+
+    fun uploadPicture() {
+        val displayPhotoRef = storageReference.child("images/${userID}")
+        displayPhotoRef.putFile(imageUri)
+        }
+    }

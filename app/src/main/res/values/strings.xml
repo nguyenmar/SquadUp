@@ -27,9 +27,7 @@
     <string name="height">Height</string>
 
     <string name="change_display_photo">Change display photo</string>
-    <string name="open_camera">Open Camera</string>
     <string-array name="change_display_photo_array">
-        <item>Open Camera</item>
         <item>Select From Gallery</item>
     </string-array>
 

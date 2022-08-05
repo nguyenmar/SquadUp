@@ -2,6 +2,7 @@ package com.ancientones.squadup.ui.profile
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.media.Image
 import android.os.Bundle
 import android.view.*
@@ -17,6 +18,9 @@ import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.FragmentProfileBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 
 class ProfileFragment : Fragment() {
 
@@ -24,10 +28,14 @@ class ProfileFragment : Fragment() {
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
     private lateinit var profileViewModel: ProfileViewModel
+    lateinit var firebaseStorage: FirebaseStorage
+    lateinit var storageReference: StorageReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         profileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
+        firebaseStorage = Firebase.storage
+        storageReference = firebaseStorage.reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -80,7 +88,14 @@ class ProfileFragment : Fragment() {
         val userPhoneView = view.findViewById<TextView>(R.id.userPhone)
         val userDescriptionView = view.findViewById<TextView>(R.id.userDescription)
         val userPictureView = view.findViewById<ImageView>(R.id.display_picture)
-        userPictureView.setImageResource(R.drawable.temporary_display_photo)
+        val imageRef = storageReference.child("images/${Firebase.auth.currentUser!!.uid}")
+        imageRef.getBytes(1024 * 1024).addOnSuccessListener {
+            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+            userPictureView.setImageBitmap(bitmap)
+        }.addOnFailureListener() {
+            println("DEBUG: User does not currently have a set display photo.")
+            userPictureView.setImageResource(R.drawable.temporary_display_photo)
+        }
 
         profileViewModel.firstName.observe(requireActivity()) {
             usernameView.text = "${profileViewModel.firstName.value} ${profileViewModel.lastName.value}"

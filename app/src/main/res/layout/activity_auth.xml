@@ -63,7 +63,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.767"
         android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"/>
+        android:layout_marginRight="30dp"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black"/>
 
     <TextView
         android:id="@+id/textView6"
