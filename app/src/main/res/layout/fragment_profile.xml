@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
+        android:layout_margin="8dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -33,17 +34,17 @@
                     android:id="@+id/username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
                 <RatingBar
                     android:id="@+id/userRating"
-                    android:layout_width="240dp"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="-60dp"
-                    android:layout_marginRight="-50dp"
+                    android:isIndicator="true"
                     android:numStars="5"
+                    android:stepSize="0.5"
                     android:scaleX="0.5"
                     android:scaleY="0.5" />
             </LinearLayout>
@@ -170,5 +171,13 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
         </LinearLayout>
+
+        <!-- TODO: remove me -->
+        <Button
+            android:id="@+id/testRateBtn"
+            android:text="rate user testR@gmail.com"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
     </LinearLayout>
 </ScrollView>

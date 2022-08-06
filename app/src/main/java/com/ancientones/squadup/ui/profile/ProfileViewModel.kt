@@ -1,12 +1,9 @@
 package com.ancientones.squadup.ui.profile
 
-import android.content.Intent
 import android.util.Log
-import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.ancientones.squadup.MainActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -74,6 +71,7 @@ class ProfileViewModel : ViewModel() {
 
     fun fetchUser() {
         val userId = Firebase.auth.currentUser!!.uid
+
         Firebase.database.getReference("Users")
             .child(userId)
             .get()
@@ -89,9 +87,25 @@ class ProfileViewModel : ViewModel() {
                 _userPhone.value = userMap["userPhone"]
                 _userDescription.value = userMap["userDescription"]
 
+                calculateRating()
             }
             .addOnFailureListener{
                 Log.e("firebase", "error getting data", it)
+            }
+    }
+
+    private fun calculateRating() {
+        var ratings: List<Double>
+        Firebase.database.getReference("Users").child(Firebase.auth.currentUser!!.uid).child("teamworkRatings")
+            .get()
+            .addOnSuccessListener {
+                if(it.value != null) {
+                    ratings = it.value as List<Double>
+                    _userRating.value = ratings.average()
+                }
+                else {
+                    _userRating.value = 0.0
+                }
             }
     }
 }

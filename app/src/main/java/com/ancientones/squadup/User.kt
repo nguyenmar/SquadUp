@@ -9,4 +9,6 @@ class User (email: String, fName: String, lName: String) {
     public var userPhone: String = ""
     public var userSex: String = ""
     public var userAge: String = ""
+    public var hasRated: List<String> = emptyList<String>()
+    public var teamworkRatings: List<Double> = emptyList<Double>()
 }
