@@ -37,6 +37,12 @@ class ChatActivity : AppCompatActivity() {
         binding = ActivityChatBinding.inflate(layoutInflater);
         setContentView(binding.root);
 
+        // back button
+        var actionBar = supportActionBar;
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         // emulator stuff here
 
         // auth
@@ -62,7 +68,8 @@ class ChatActivity : AppCompatActivity() {
         val query = db.collection(CHAT_COLLECTION_NAME).document(id)
             .collection(MESSAGE_COLLECTION_NAME).orderBy("timestamp")
             .limit(50);
-
+        // chat title
+        title = "Bob's B-game \uD83C\uDFC0"
 //        db.collection(CHAT_COLLECTION_NAME).document(id).get().addOnSuccessListener {
 //            val chat: Chat? = it.toObject<Chat>();
 //            println("debugx: chat: ${it.get("messages")}")
@@ -80,13 +87,14 @@ class ChatActivity : AppCompatActivity() {
 
         binding.chatRecyclerView.layoutManager = manager;
         binding.chatRecyclerView.adapter = messageAdapter;
-        messageAdapter.startListening()
+        messageAdapter.startListening();
+
         binding.sendButton.setOnClickListener {
-            if(binding.messageEditBox.text.isNotEmpty()) {
+            if( binding.messageEditBox.text.isNotEmpty() ) {
                 val message = Message(
                     "titanvj",
                     "xxxxxxxxx",
-                    binding.messageEditBox.text.toString()
+                    binding.messageEditBox.text.toString().trim()
                 );
                 db.collection(CHAT_COLLECTION_NAME).document(id)
                     .collection(MESSAGE_COLLECTION_NAME).add(message).addOnSuccessListener {
@@ -97,6 +105,23 @@ class ChatActivity : AppCompatActivity() {
                 binding.messageEditBox.text.clear();
             }
         }
+    }
 
+    // todo: add saved instance state for text in text box and scroll position? match messages app
+    // todo: add the auto scroll or button to scroll down when scrolled up enough or new message(notif fab)?
+
+    override fun onDestroy() {
+        super.onDestroy();
+        messageAdapter.stopListening();
+    }
+
+    override fun onPause() {
+        super.onPause();
+        messageAdapter.stopListening();
+    }
+
+    override fun onResume() {
+        super.onResume();
+        messageAdapter.startListening();
     }
 }
