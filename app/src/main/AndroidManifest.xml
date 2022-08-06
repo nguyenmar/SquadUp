@@ -3,11 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.ancientones.squadup">
 
-    <uses-feature android:name="android.hardware.camera" />
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-feature android:name="android.hardware.camera" />
+
 
     <application
         android:allowBackup="true"
@@ -20,15 +23,33 @@
         android:theme="@style/Theme.SquadUp"
         tools:targetApi="31">
         <activity
+            android:name=".dropin.AddDropInActivity"
+            android:exported="false" />
+        <activity
+            android:name=".dropin.EditDropInActivity"
+            android:exported="false" />
+        <activity
+            android:name=".dropin.DropInActivity"
+            android:exported="false" />
+        <activity
             android:name=".AuthActivity"
             android:exported="true"
             android:theme="@style/Theme.Design.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
+        <service
+            android:name=".TrackingService"
+            android:enabled="true"
+            android:exported="false" />
+
         <activity android:name=".auth.AuthSignInActivity" />
         <activity android:name=".auth.AuthSignUpActivity"/>
         <activity android:name=".MainActivity"/>
