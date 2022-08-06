@@ -57,7 +57,7 @@
         android:layout_marginBottom="15dp"
         android:id="@+id/location_text"
         android:inputType="textPostalAddress"/>
-    <TextView
+<!--    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Date"/>
@@ -66,7 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
         android:id="@+id/date"
-        android:inputType="textPostalAddress"/>
+        android:inputType="textPostalAddress"/>-->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

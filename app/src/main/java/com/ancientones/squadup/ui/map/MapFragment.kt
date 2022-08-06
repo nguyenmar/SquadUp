@@ -161,7 +161,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         if (!mapCentered) {
             val latLng = locationList.last()
-            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12f)
             mMap.animateCamera(cameraUpdate)
             mapCentered = true
         }

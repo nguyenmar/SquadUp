@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,12 +8,26 @@
     android:layout_marginLeft="30dp"
     android:layout_marginRight="30dp">
 
+    <fragment
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Drop-in Title"
-        android:layout_marginTop="300dp"
+        android:id="@+id/titleDropIn"
         android:layout_marginBottom="10dp"
         android:textStyle="bold"
         android:textSize="25dp"/>
@@ -23,13 +38,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="X spots remaining"
+            android:text="0 spots remaining"
             android:layout_weight="1"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="X on their way"
+            android:text="5 on their way"
             android:layout_weight="1"/>
 
     </LinearLayout>
@@ -39,9 +54,17 @@
         android:layout_height="wrap_content"
         android:text="@string/comments"
         android:textSize="10dp"
-        android:layout_marginBottom="20dp"
+
         />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/comments"
+        android:id="@+id/aboutDropIn"
+        android:textSize="10dp"
+        android:layout_marginBottom="20dp"
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -62,7 +85,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:text="Input Time"
+            android:text="5:30-6:30"
+            android:id="@+id/timeDropIn"
             android:textSize="10dp"
             />
     </LinearLayout>
@@ -81,7 +105,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:text="Input Location"
+            android:id="@+id/locationDropIn"
+            android:text="John Hendry Park"
             android:textSize="10dp" />
     </LinearLayout>
 
@@ -99,7 +124,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:text="Input Skill Level"
+            android:text="Beginner"
+            android:id="@+id/skillLevelDropIn"
             android:textSize="10dp" />
     </LinearLayout>
 
@@ -118,7 +144,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:text="Input Participants"
+            android:text="5"
+            android:id="@+id/participantsDropIn"
             android:textSize="10dp" />
     </LinearLayout>
 
@@ -153,7 +180,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="5dp"
-            android:text="Host Name"
+            android:text="Marian Nguyen"
             android:textStyle="bold"
             android:textSize="15dp"
             android:gravity="center_vertical"/>
@@ -167,4 +194,5 @@
         android:text="Join Drop-in"/>
 
 
+    </LinearLayout>
 </LinearLayout>
