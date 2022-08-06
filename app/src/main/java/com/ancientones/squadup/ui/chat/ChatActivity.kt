@@ -2,6 +2,9 @@ package com.ancientones.squadup.ui.chat
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.view.MenuItem
+import androidx.activity.addCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ancientones.squadup.database.models.Message
@@ -13,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.ancientones.squadup.BuildConfig
+import java.lang.Exception
 
 class ChatActivity : AppCompatActivity() {
     companion object {
@@ -23,6 +27,7 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding;
     private lateinit var viewModel: ChatViewModel;
+    private val MSG_KEY = "msg_key";
 
     // Firebase
     private lateinit var db: FirebaseFirestore;
@@ -37,10 +42,19 @@ class ChatActivity : AppCompatActivity() {
         binding = ActivityChatBinding.inflate(layoutInflater);
         setContentView(binding.root);
 
+        println("debugx: chat activity onCreate")
+
         // back button
         var actionBar = supportActionBar;
         if(actionBar != null){
+            actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        // last state, for temp message
+        if(savedInstanceState != null){
+            val msg = savedInstanceState.getString(MSG_KEY);
+            binding.messageEditBox.setText(msg);
         }
 
         // emulator stuff here
@@ -54,12 +68,14 @@ class ChatActivity : AppCompatActivity() {
         // db setup
 
         // for local only, todo: comment out later
-        println("debugx ${BuildConfig.DEBUG}")
-        Firebase.firestore.useEmulator("10.0.2.2", 8080);
-        val settings = FirebaseFirestoreSettings.Builder()
-            .setPersistenceEnabled(false).build();
-        Firebase.firestore.firestoreSettings = settings;
-
+        if( BuildConfig.DEBUG ){
+            try{
+                Firebase.firestore.useEmulator("10.0.2.2", 8080);
+                val settings = FirebaseFirestoreSettings.Builder()
+                    .setPersistenceEnabled(false).build();
+                Firebase.firestore.firestoreSettings = settings;
+            } catch (e: Exception){}
+        }
         db = Firebase.firestore;
 
         // chat setup
@@ -104,11 +120,28 @@ class ChatActivity : AppCompatActivity() {
                     };
                 binding.messageEditBox.text.clear();
             }
-        }
+        };
+        onBackPressedDispatcher.addCallback(this) {
+            messageAdapter.stopListening();
+            finish();
+        };
     }
 
     // todo: add saved instance state for text in text box and scroll position? match messages app
     // todo: add the auto scroll or button to scroll down when scrolled up enough or new message(notif fab)?
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putString(MSG_KEY, binding.messageEditBox.text.toString().trim());
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if( item.itemId == android.R.id.home ){
+            messageAdapter.stopListening();
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     override fun onDestroy() {
         super.onDestroy();
