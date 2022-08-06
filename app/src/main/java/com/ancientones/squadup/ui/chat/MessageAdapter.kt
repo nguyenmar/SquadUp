@@ -30,11 +30,8 @@ class MessageAdapter(private val options: FirestoreRecyclerOptions<Message>,
         fun bind(item: Message){
             binding.message.text = item.message;
             binding.messageFrom.text = item.from;
-            println("debugx ${item.from} == ${currentUserName}")
-
 
             if( item.from == currentUserName ) {
-                println("debugx: sent message styling enabled")
                 binding.message.setBackgroundResource(R.drawable.message_sent);
 
                 val layout: ConstraintLayout = binding.messageLayout;
