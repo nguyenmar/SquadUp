@@ -30,9 +30,15 @@ class ChatListFragment : Fragment() {
         _binding = FragmentChatListBinding.inflate(inflater, container, false);
         val root: View = binding.root;
 
-        val intent = Intent(requireContext(), ChatActivity::class.java);
+
+        /** TODO:
+         *      Get user object by auth id, then get list of all chats
+         *      with list of dropin the user has joined.
+         * */
+        val intent = Intent(requireActivity(), ChatActivity::class.java);
         intent.putExtra(ChatActivity.CHAT_ID_KEY, "1");
-        startActivity(intent);
+        println("debugx: Launching chat")
+        requireActivity().startActivity(intent);
 
 
         return root;
