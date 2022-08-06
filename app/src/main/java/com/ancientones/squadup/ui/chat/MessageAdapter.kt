@@ -18,7 +18,7 @@ class MessageAdapter(private val options: FirestoreRecyclerOptions<Message>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context);
-        return MessageViewHolder( MessageBinding.inflate(inflater) );
+        return MessageViewHolder( MessageBinding.inflate(inflater, parent, false) );
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, model: Message) {
@@ -32,16 +32,18 @@ class MessageAdapter(private val options: FirestoreRecyclerOptions<Message>,
             binding.messageFrom.text = item.from;
             println("debugx ${item.from} == ${currentUserName}")
 
-            if( item.from == currentUserName ) {
-                binding.message.setBackgroundResource(R.drawable.message_blue);
-                // todo: adjust the constraints to be right aligned
 
-                val layout1: ConstraintLayout = binding.messageLayout;
-                val set1 = ConstraintSet();
-                set1.clone(layout1);
-                set1.connect(binding.message.id, ConstraintSet.END, layout1.id, ConstraintSet.END);
-                set1.applyTo(layout1)
-                binding.messageFrom.visibility = View.INVISIBLE;
+            if( item.from == currentUserName ) {
+                println("debugx: sent message styling enabled")
+                binding.message.setBackgroundResource(R.drawable.message_sent);
+
+                val layout: ConstraintLayout = binding.messageLayout;
+                val set = ConstraintSet();
+                set.clone(layout);
+                set.clear(binding.message.id, ConstraintSet.START);
+                set.connect(binding.message.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+                set.applyTo(layout);    
+                binding.messageFrom.visibility = View.GONE;
             }
         }
     }
