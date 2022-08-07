@@ -40,6 +40,7 @@ class EditProfileActivity : AppCompatActivity() {
     lateinit var imageUri: Uri
     lateinit var firebaseStorage: FirebaseStorage
     lateinit var storageReference: StorageReference
+    lateinit var progressBar: ProgressBar
     var newPhotoFlag: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +71,7 @@ class EditProfileActivity : AppCompatActivity() {
         sexRadioGroup = findViewById(R.id.radio_group)
         sexRadioButtonMale = findViewById(R.id.radio_male)
         sexRadioButtonFemale = findViewById(R.id.radio_female)
+        progressBar = findViewById(R.id.progressBar)
 
         val fName = intent.getStringExtra("firstName")
         val lName = intent.getStringExtra("lastName")
@@ -99,7 +101,6 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     fun saveProfile(item: MenuItem) {
-        // TODO: Save new info to database
         val db = Firebase.database.getReference("Users").child(userID)
         db.child("firstName").setValue("${fNameEditText.text}")
         db.child("lastName").setValue("${lNameEditText.text}")
@@ -110,11 +111,25 @@ class EditProfileActivity : AppCompatActivity() {
         db.child("userHeight").setValue(heightEditText.text.toString().toInt())
         db.child("userPhone").setValue("${phoneNumberEditText.text}")
         db.child("userDescription").setValue("${userDescriptionEditText.text}")
-        if (newPhotoFlag == 0) {
-            uploadPicture()
-        }
 
-        finish()
+        // Wait until the photo is uploaded before informing ProfileFragment that it has been saved
+        if (newPhotoFlag == 0) {
+            val displayPhotoRef = storageReference.child("images/${userID}")
+            progressBar.visibility = View.VISIBLE
+            // TODO: disable fields + save button
+            displayPhotoRef.putFile(imageUri)
+                .addOnSuccessListener {
+                    setResult(RESULT_OK)
+                    finish()
+                }
+                .addOnFailureListener {
+                    progressBar.visibility = View.GONE
+                    println("Error uploading image: $it")
+                }
+        }
+        else{
+            finish()
+        }
     }
 
     fun displayPictureOnClick(view: View){
@@ -138,8 +153,4 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    fun uploadPicture() {
-        val displayPhotoRef = storageReference.child("images/${userID}")
-        displayPhotoRef.putFile(imageUri)
-        }
-    }
+}

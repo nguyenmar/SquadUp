@@ -95,7 +95,7 @@ class ProfileViewModel : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // TODO: implement
+                println("user fetch error: ${error.message}")
             }
         }
         userReference.addValueEventListener(userListener)
