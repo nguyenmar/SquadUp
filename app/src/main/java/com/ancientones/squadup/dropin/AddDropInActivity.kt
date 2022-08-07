@@ -94,7 +94,7 @@ class AddDropInActivity : AppCompatActivity() {
             dropin["comments"] = binding.commentsText.text.toString()
             dropin["startTime"] = binding.startTime.text.toString()
             dropin["endTime"] = binding.endTime.text.toString()
-            dropin["numParticipants"] = binding.participantsText.text as Int
+            dropin["numParticipants"] = binding.participantsText.text.toString().toInt()
             dropin["members"] = list
             db.collection("dropin")
                 .add(dropin)

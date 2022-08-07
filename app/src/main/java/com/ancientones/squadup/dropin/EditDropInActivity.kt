@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityEditDropInBinding
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import java.io.IOException
+import java.util.ArrayList
 import java.util.HashMap
 
 //Need to: only let creator of drop in be able to edit it (this should be done in mapfragment)
@@ -20,6 +22,7 @@ import java.util.HashMap
 
 class EditDropInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditDropInBinding
+    private lateinit var dropInViewModel: DropInViewModel
 
     var documentID = ""
     var comments = ""
@@ -42,9 +45,11 @@ class EditDropInActivity : AppCompatActivity() {
             documentID = bundle["documentID"].toString()
         }
 
+        dropInViewModel = ViewModelProvider(this).get(DropInViewModel::class.java)
+
         loadDropIn()
 
-        populateViews()
+        //populateViews()
 
         binding.updateButton.setOnClickListener {
             saveFireStore()
@@ -53,32 +58,47 @@ class EditDropInActivity : AppCompatActivity() {
 
     private fun loadDropIn() {
 
-        val db = FirebaseFirestore.getInstance()
+        val sportSpinner = binding.editSportSpinner
+        val skillSpinner = binding.editLevelSpinner
+        val locationEdit = binding.editLocationText
+        val dateEdit = binding.editDate
+        val startTimeEdit = binding.editStartTime
+        val endTimeEdit = binding.editEndTime
+        val participantsEdit = binding.editParticipantsText
+        val commentEdit = binding.editCommentsText
 
-        val docRef = db.collection("dropin").document(documentID)
-        println("documentID --- $documentID")
-        docRef.get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    println("DocumentSnapshot data: ${document.data}")
-                    comments = document.get("comment").toString()
-                    location = document.getGeoPoint("location")
-                    startTime = document.get("").toString()
-                    endTime = document.get("").toString()
-                    sport = document.get("sport").toString()
-                    skillLevel = document.get("skillLevel").toString()
-                    numParticipants = document.get("numParticipants").toString()
+        dropInViewModel.fetchDropIn(documentID)
+        dropInViewModel.fetchUserID()
 
-                } else {
-                    println("No document")
-                }
-            }
-            .addOnFailureListener { exception ->
-                println("failed to get document")
-            }
+        dropInViewModel.sport.observe(this) {
+            var sportInt = arrayOf("Soccer","Basketball","Tennis","Baseball","Golf","Volleyball",
+                "Badminton","Football","Hockey","Rugby","Others").indexOf(dropInViewModel.sport.value)
+            sportSpinner.setSelection(sportInt)
+        }
+        dropInViewModel.skillLevel.observe(this) {
+            var skillInt = arrayOf("Beginner","Intermediate","Advanced","Elite","All").indexOf(dropInViewModel.skillLevel.value)
+            skillSpinner.setSelection(skillInt)
+        }
+        dropInViewModel.location.observe(this) {
+            locationEdit.setText(getAddressfromLatLng(dropInViewModel.location.value!!))
+        }
+        dropInViewModel.startTime.observe(this) {
+            startTimeEdit.setText("${dropInViewModel.startTime.value}")
+        }
+        dropInViewModel.endTime.observe(this) {
+            endTimeEdit.setText("${dropInViewModel.endTime.value}")
+        }
+        dropInViewModel.comments.observe(this) {
+            commentEdit.setText("${dropInViewModel.comments.value}")
+        }
+        dropInViewModel.numParticipants.observe(this) {
+            participantsEdit.setText("${dropInViewModel.numParticipants.value}")
+
+        }
 
     }
 
+    /* Old idea
     private fun populateViews() {
         val sportSpinner = binding.editSportSpinner
         val skillSpinner = binding.editLevelSpinner
@@ -98,6 +118,8 @@ class EditDropInActivity : AppCompatActivity() {
         participantsEdit.setText(numParticipants)
         commentEdit.setText(comments)
     }
+
+     */
 
     private fun saveFireStore(){
         val db = FirebaseFirestore.getInstance()
@@ -154,6 +176,20 @@ class EditDropInActivity : AppCompatActivity() {
             ex.printStackTrace()
         }
         return latlng
+    }
+
+    fun getAddressfromLatLng(geoPoint: GeoPoint): String{
+        var coder: Geocoder = Geocoder(applicationContext)
+
+        var fullAddress = coder.getFromLocation(geoPoint.latitude,geoPoint.longitude, 1)
+
+        val address: String = fullAddress[0].getAddressLine(0)
+        val city: String = fullAddress[0].getLocality()
+        val state: String = fullAddress[0].getAdminArea()
+        val zip: String = fullAddress[0].getPostalCode()
+        val country: String = fullAddress[0].getCountryName()
+
+        return address
     }
 
 
