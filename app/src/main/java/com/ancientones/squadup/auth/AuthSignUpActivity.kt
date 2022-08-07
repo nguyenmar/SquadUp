@@ -56,7 +56,7 @@ class AuthSignUpActivity : AppCompatActivity() {
         val fName = firstNameEditText.text.toString().trim()
         val lName = lastNameEditText.text.toString().trim()
         val pword = passwordEditText.text.toString().trim()
-        val pwordConfirm = confirmPasswordEditText.toString().trim()
+        val pwordConfirm = confirmPasswordEditText.text.toString().trim()
 
         if(validateEmail(email) == -1) {
             return
@@ -135,7 +135,7 @@ class AuthSignUpActivity : AppCompatActivity() {
             passwordEditText.setError("Please input a password 6 characters or longer.")
         }
 
-        if(pword.equals(pwordConfirm)) {
+        if(!pword.equals(pwordConfirm)) {
             confirmPasswordEditText.requestFocus()
             confirmPasswordEditText.setError("Your passwords do not match!")
             return -1
