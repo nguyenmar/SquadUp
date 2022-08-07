@@ -13,8 +13,10 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.ktx.Firebase
 import java.util.ArrayList
 
 class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
@@ -41,11 +43,9 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         val intent = intent
         val bundle = intent.extras
         var documentID = ""
-        var startTime = ""
-        var endTime = ""
         var numParticipants: Long = 0
-        var list: MutableList<String> = ArrayList()
-        var currentUser = ""
+        var currentUser = Firebase.auth.currentUser!!.uid
+
         if (bundle != null){
             documentID = bundle["documentID"].toString()
         }
@@ -54,44 +54,40 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         dropInViewModel.fetchUserID()
 
         dropInViewModel.members.observe(this) {
-            list = dropInViewModel.members.value!!
+            binding.onTheWay.text = "${dropInViewModel.members.value!!.count()} on their way"
+            val listCount = dropInViewModel.members.value!!.count().toLong()
+            val spotRemain = dropInViewModel.numParticipants.value?.minus(listCount)
+            binding.spotsRemain.text = "$spotRemain spots remaining"
         }
 
         dropInViewModel.sport.observe(this) {
             binding.titleDropIn.text = "${dropInViewModel.sport.value} Drop-in"
         }
         dropInViewModel.firstName.observe(this) {
-            binding.hostName.text = "${dropInViewModel.firstName.value}"
+            binding.hostName.text = "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
         }
-        dropInViewModel.userID.observe(this) {
-            currentUser = "${dropInViewModel.userID.value}"
-            println("debug: currentuser in observe: $currentUser")
+        dropInViewModel.lastName.observe(this) {
+            binding.hostName.text = "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
         }
-        println("debug: current user: $currentUser")
         dropInViewModel.startTime.observe(this) {
-            startTime = "${dropInViewModel.startTime.value}"
+            binding.timeDropIn.text = "${dropInViewModel.startTime.value} - ${dropInViewModel.endTime.value}"
         }
         dropInViewModel.endTime.observe(this) {
-            endTime = "${dropInViewModel.endTime.value}"
+            binding.timeDropIn.text = "${dropInViewModel.startTime.value} - ${dropInViewModel.endTime.value}"
         }
         dropInViewModel.comments.observe(this) {
             binding.aboutDropIn.text = "${dropInViewModel.comments.value}"
         }
         dropInViewModel.numParticipants.observe(this) {
             binding.participantsDropIn.text = "${dropInViewModel.numParticipants.value}"
-            numParticipants = dropInViewModel.numParticipants.value!!
+            /*val listCount = dropInViewModel.members.value!!.count().toLong()
+            val spotRemain = dropInViewModel.numParticipants.value?.minus(listCount)
+            binding.spotsRemain.text = "$spotRemain spots remaining"*/
 
         }
         dropInViewModel.skillLevel.observe(this) {
             binding.skillLevelDropIn.text = "${dropInViewModel.skillLevel.value}"
         }
-
-        println("debug: list size ${list.count()}")
-        binding.onTheWay.text = "${list.count()} on their way"
-        val ontheirWay = numParticipants - list.count()
-        binding.spotsRemain.text = "$ontheirWay on their way"
-
-        binding.timeDropIn.text = "$startTime - $endTime"
 
         binding.joinButton.setOnClickListener {
             joinDropIn()

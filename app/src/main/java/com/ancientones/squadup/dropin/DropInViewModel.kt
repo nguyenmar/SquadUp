@@ -23,7 +23,6 @@ class DropInViewModel: ViewModel() {
     private val _endTime = MutableLiveData<String>()
     private val _numParticipants = MutableLiveData<Long>()
     private val _comments = MutableLiveData<String>()
-    private val _userID = MutableLiveData<String>()
     private val _hostID = MutableLiveData<String>()
     private val _firstName = MutableLiveData<String>()
     private val _lastName = MutableLiveData<String>()
@@ -68,10 +67,6 @@ class DropInViewModel: ViewModel() {
         get(){
             return _members
         }
-    val userID: LiveData<String>
-        get(){
-            return _userID
-        }
 
     val hostID: LiveData<String>
         get(){
@@ -115,7 +110,7 @@ class DropInViewModel: ViewModel() {
 
     }
     fun fetchUserID(){
-        _userID.value = Firebase.auth.currentUser!!.uid
+
         val userId = Firebase.auth.currentUser!!.uid
         Firebase.database.getReference("Users")
             .child(userId)

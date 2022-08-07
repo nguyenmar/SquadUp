@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityAddDropInBinding
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.ktx.Firebase
 import java.io.IOException
 import java.util.*
 
@@ -83,12 +85,10 @@ class AddDropInActivity : AppCompatActivity() {
             if (latlng != null) {
                 dropin["location"] = GeoPoint(latlng.latitude, latlng.longitude)
             }
-            dropInViewModel.userID.observe(this) {
-                println("debug: hostID: ${dropInViewModel.userID.value}")
-                dropin["hostID"] = "${dropInViewModel.userID.value}"
-                list.add("${dropInViewModel.userID.value}")
-            }
+            var currentUser = Firebase.auth.currentUser!!.uid
+            list.add(currentUser)
 
+            dropin["hostID"] = currentUser
             dropin["sport"] = binding.sportSpinner.selectedItem.toString()
             dropin["skillLevel"] = binding.levelSpinner.selectedItem.toString()
             dropin["comments"] = binding.commentsText.text.toString()
