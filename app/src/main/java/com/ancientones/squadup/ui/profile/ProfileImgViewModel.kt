@@ -2,6 +2,7 @@ package com.ancientones.squadup.ui.profile
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
@@ -9,9 +10,12 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 
 class ProfileImgViewModel : ViewModel() {
+    var userImage = MutableLiveData<Bitmap>()
+    val hasImage = MutableLiveData<Boolean>(false)
 
-    val userImage = MutableLiveData<Bitmap>()
-    val hasImage = MutableLiveData<Boolean>()
+    // For edit profile
+    val imgUri = MutableLiveData<Uri>()
+    val newImage = MutableLiveData<Boolean>(false)
 
     fun fetchUserImage() {
         val imageRef = Firebase.storage.reference.child("images/${Firebase.auth.currentUser!!.uid}")

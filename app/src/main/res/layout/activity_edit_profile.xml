@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:label="@string/title_profile">
@@ -13,11 +14,12 @@
         android:layout_marginTop="50dp">
 
         <ImageView
+            android:id="@+id/display_picture"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_gravity="center"
-            android:id="@+id/display_picture"
-            android:onClick="displayPictureOnClick"/>
+            android:onClick="displayPictureOnClick"
+            app:srcCompat="@drawable/temporary_display_photo" />
 
         <ProgressBar
             android:layout_width="wrap_content"
