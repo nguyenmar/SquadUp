@@ -23,9 +23,6 @@ class AddDropInActivity : AppCompatActivity() {
         binding = ActivityAddDropInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val listOfSports = resources.getStringArray(R.array.listOfSports)
-        val sportSpinner = findViewById<Spinner>(R.id.sport_spinner)
-
         binding.saveButton.setOnClickListener {
             saveFireStore()
         }
@@ -33,6 +30,9 @@ class AddDropInActivity : AppCompatActivity() {
     }
 
     private fun saveFireStore(){
+
+        //validateValues()
+
         val db = FirebaseFirestore.getInstance()
         val dropin: MutableMap<String,Any> = HashMap()
         val latlng = getLocationFromAddress(binding.locationText.text.toString())
@@ -41,6 +41,12 @@ class AddDropInActivity : AppCompatActivity() {
         if (latlng != null) {
             dropin["location"] = GeoPoint(latlng.latitude, latlng.longitude)
         }
+        else
+        {
+            binding.locationText.requestFocus()
+            binding.locationText.error = "Location is invalid"
+        }
+
 
         if (binding.sportSpinner.selectedItem != null) {
             dropin["sport"] = binding.sportSpinner.selectedItem.toString()
@@ -69,7 +75,7 @@ class AddDropInActivity : AppCompatActivity() {
         finish()
     }
 
-    fun getLocationFromAddress(addressString: String): LatLng? {
+    private fun getLocationFromAddress(addressString: String): LatLng? {
         var coder: Geocoder = Geocoder(applicationContext)
         var latlng: LatLng? = null
         println("debug: address $addressString")
@@ -77,6 +83,7 @@ class AddDropInActivity : AppCompatActivity() {
             var address = coder.getFromLocationName(addressString, 5)
 
             if (address == null){
+                println("debug: address is null")
                 return null
             }
 

@@ -2,8 +2,10 @@ package com.ancientones.squadup.dropin
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityDropInBinding
+import com.ancientones.squadup.ui.profile.ProfileViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -17,9 +19,11 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var binding: ActivityDropInBinding
     private lateinit var mMap: GoogleMap
     private var location: GeoPoint = GeoPoint(0.0,0.0)
+    private lateinit var dropInViewModel: DropInViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dropInViewModel = ViewModelProvider(this).get(DropInViewModel::class.java)
 
         val mapFragment = SupportMapFragment.newInstance()
         supportFragmentManager
@@ -36,48 +40,26 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         val intent = intent
         val bundle = intent.extras
         var documentID = ""
-        var comments = ""
-        var startTime = ""
-        var endTime = ""
-        var sport = ""
-        var skillLevel = ""
-        var numParticipants = ""
+
 
         if (bundle != null){
             documentID = bundle["documentID"].toString()
         }
-        val db = FirebaseFirestore.getInstance()
 
+        dropInViewModel.fetchDropIn(documentID)
 
-        val docRef = db.collection("dropin").document(documentID)
-        println("documentID --- $documentID")
-        docRef.get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    println("DocumentSnapshot data: ${document.data}")
-                    comments = document.get("comments").toString()
-                    println(comments)
-                    sport = document.get("sport").toString()
-                    document.getGeoPoint("location")?.let { setGeoPoint(it) }
-                    binding.aboutDropIn.text = comments
-                    binding.titleDropIn.text = sport + " Drop-in"
+        dropInViewModel.sport.observe(this) {
+            binding.titleDropIn.text = "${dropInViewModel.sport.value} Drop-in"
+        }
 
-
-                } else {
-                    println("No document")
-                }
-            }
-            .addOnFailureListener { exception ->
-                println("failed to get document")
-            }
-
-        println("debug: location $location")
-
-        //binding.locationDropIn.text = getAddressfromLatLng(location)
         binding.joinButton.setOnClickListener {
             finish()
         }
     }
+
+
+
+
     fun setGeoPoint(geoPoint: GeoPoint){
         location = geoPoint
         println("debug: geopoint: $location")
