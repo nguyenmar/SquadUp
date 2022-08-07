@@ -8,8 +8,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.auth.ktx.auth
 import java.util.HashMap
+import com.google.firebase.database.ktx.database
+
+
 
 class DropInViewModel: ViewModel() {
 
