@@ -1,5 +1,6 @@
 package com.ancientones.squadup.dropin
 
+import android.location.Geocoder
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -14,11 +15,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import java.util.ArrayList
 
 class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var binding: ActivityDropInBinding
     private lateinit var mMap: GoogleMap
-    private var location: GeoPoint = GeoPoint(0.0,0.0)
+    //private var location: GeoPoint = GeoPoint(0.0,0.0)
     private lateinit var dropInViewModel: DropInViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,51 +35,93 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
 
         mapFragment.getMapAsync(this)
 
-
         binding = ActivityDropInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val intent = intent
         val bundle = intent.extras
         var documentID = ""
-
-
+        var startTime = ""
+        var endTime = ""
+        var numParticipants: Long = 0
+        var list: MutableList<String> = ArrayList()
+        var currentUser = ""
         if (bundle != null){
             documentID = bundle["documentID"].toString()
         }
 
         dropInViewModel.fetchDropIn(documentID)
+        dropInViewModel.fetchUserID()
+
+        dropInViewModel.members.observe(this) {
+            list = dropInViewModel.members.value!!
+        }
 
         dropInViewModel.sport.observe(this) {
             binding.titleDropIn.text = "${dropInViewModel.sport.value} Drop-in"
         }
+        dropInViewModel.firstName.observe(this) {
+            binding.hostName.text = "${dropInViewModel.firstName.value}"
+        }
+        dropInViewModel.userID.observe(this) {
+            currentUser = "${dropInViewModel.userID.value}"
+            println("debug: currentuser in observe: $currentUser")
+        }
+        println("debug: current user: $currentUser")
+        dropInViewModel.startTime.observe(this) {
+            startTime = "${dropInViewModel.startTime.value}"
+        }
+        dropInViewModel.endTime.observe(this) {
+            endTime = "${dropInViewModel.endTime.value}"
+        }
+        dropInViewModel.comments.observe(this) {
+            binding.aboutDropIn.text = "${dropInViewModel.comments.value}"
+        }
+        dropInViewModel.numParticipants.observe(this) {
+            binding.participantsDropIn.text = "${dropInViewModel.numParticipants.value}"
+            numParticipants = dropInViewModel.numParticipants.value!!
+
+        }
+        dropInViewModel.skillLevel.observe(this) {
+            binding.skillLevelDropIn.text = "${dropInViewModel.skillLevel.value}"
+        }
+
+        println("debug: list size ${list.count()}")
+        binding.onTheWay.text = "${list.count()} on their way"
+        val ontheirWay = numParticipants - list.count()
+        binding.spotsRemain.text = "$ontheirWay on their way"
+
+        binding.timeDropIn.text = "$startTime - $endTime"
 
         binding.joinButton.setOnClickListener {
-            finish()
+            joinDropIn()
+        }
+    }
+
+    private fun joinDropIn(){
+        finish()
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        println("on map rdy")
+        mMap = googleMap
+        var location: GeoPoint
+        dropInViewModel.location.observe(this) {
+            location = dropInViewModel.location.value!!
+            println(location)
+            mMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(location.latitude, location.longitude))
+                    .title("Drop-in")
+            )
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 15f)
+            mMap.animateCamera(cameraUpdate)
+            binding.locationDropIn.text = getAddressfromLatLng(location)
         }
     }
 
 
-
-
-    fun setGeoPoint(geoPoint: GeoPoint){
-        location = geoPoint
-        println("debug: geopoint: $location")
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        mMap.addMarker(
-            MarkerOptions()
-                .position(LatLng(49.2578, -123.0594))
-                .title("Drop-in")
-        )
-        val cameraUpdate = CameraUpdateFactory.newLatLngZoom(LatLng(49.2578, -123.0594), 15f)
-        mMap.animateCamera(cameraUpdate)
-    }
-
-
-/*    fun getAddressfromLatLng(geoPoint: GeoPoint): String{
+    fun getAddressfromLatLng(geoPoint: GeoPoint): String{
         var coder: Geocoder = Geocoder(applicationContext)
 
         var fullAddress = coder.getFromLocation(geoPoint.latitude,geoPoint.longitude, 1)
@@ -89,5 +133,5 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         val country: String = fullAddress[0].getCountryName()
 
         return address
-    }*/
+    }
 }
