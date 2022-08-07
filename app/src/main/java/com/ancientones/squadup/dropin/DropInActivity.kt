@@ -1,5 +1,6 @@
 package com.ancientones.squadup.dropin
 
+import android.content.Intent
 import android.location.Geocoder
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +25,7 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var mMap: GoogleMap
     //private var location: GeoPoint = GeoPoint(0.0,0.0)
     private lateinit var dropInViewModel: DropInViewModel
+    private var documentID = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +44,10 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
 
         val intent = intent
         val bundle = intent.extras
-        var documentID = ""
+        var startTime = ""
+        var endTime = ""
         var numParticipants: Long = 0
         var currentUser = Firebase.auth.currentUser!!.uid
-
         if (bundle != null){
             documentID = bundle["documentID"].toString()
         }
@@ -69,6 +71,7 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         dropInViewModel.lastName.observe(this) {
             binding.hostName.text = "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
         }
+        println("debug: current user: $currentUser")
         dropInViewModel.startTime.observe(this) {
             binding.timeDropIn.text = "${dropInViewModel.startTime.value} - ${dropInViewModel.endTime.value}"
         }
@@ -91,12 +94,34 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
 
         binding.joinButton.setOnClickListener {
             joinDropIn()
+
+        if (dropInViewModel.hostID == dropInViewModel.userID) {
+            binding.joinButton.setText("Update Drop-In")
+            binding.joinButton.setOnClickListener {
+                updateDropIn()
+            }
+        }
+        else {
+            binding.joinButton.setOnClickListener {
+                joinDropIn()
+            }
         }
     }
 
-    private fun joinDropIn(){
-        finish()
+    private fun updateDropIn() {
+        val intent = Intent(this, EditDropInActivity::class.java)
+        intent.putExtra("documentID", documentID)
+        startActivity(intent)
     }
+
+    private fun joinDropIn() {
+        //temporary until hostID == userID figured out
+        val intent = Intent(this, EditDropInActivity::class.java)
+        intent.putExtra("documentID", documentID)
+        startActivity(intent)
+        //finish()
+    }
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         println("on map rdy")
