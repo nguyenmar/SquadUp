@@ -46,8 +46,6 @@ class EditProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        checkPermissions(this)
-
         firebaseStorage = Firebase.storage
         storageReference = firebaseStorage.reference
         userID = intent.getStringExtra("userID").toString()
@@ -130,23 +128,6 @@ class EditProfileActivity : AppCompatActivity() {
             })
 
         builder.show()
-    }
-
-    fun checkPermissions(activity: Activity?) {
-        if (Build.VERSION.SDK_INT < 23) return
-        if (ContextCompat.checkSelfPermission(
-                activity!!,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
-                0
-            )
-        }
     }
 
     private val galleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
