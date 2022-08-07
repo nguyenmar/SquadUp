@@ -32,6 +32,9 @@ class ProfileFragment : Fragment() {
     private lateinit var firebaseStorage: FirebaseStorage
     private lateinit var storageReference: StorageReference
 
+    private lateinit var userPictureView: ImageView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         profileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
@@ -43,7 +46,8 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        profileViewModel.fetchUser()
+        profileViewModel.fetchUser(Firebase.database.getReference("Users")
+            .child(Firebase.auth.currentUser!!.uid))
 
         return root
     }
@@ -89,16 +93,9 @@ class ProfileFragment : Fragment() {
         val userPhoneView = view.findViewById<TextView>(R.id.userPhone)
         val userDescriptionView = view.findViewById<TextView>(R.id.userDescription)
         val userRatingView = view.findViewById<RatingBar>(R.id.userRating)
+        userPictureView = view.findViewById(R.id.display_picture)
 
-        val userPictureView = view.findViewById<ImageView>(R.id.display_picture)
-        val imageRef = storageReference.child("images/${Firebase.auth.currentUser!!.uid}")
-        imageRef.getBytes(1024 * 1024).addOnSuccessListener {
-            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-            userPictureView.setImageBitmap(bitmap)
-        }.addOnFailureListener {
-            println("DEBUG: User does not currently have a set display photo.")
-            userPictureView.setImageResource(R.drawable.temporary_display_photo)
-        }
+        fetchUserImage()
 
         profileViewModel.firstName.observe(requireActivity()) {
             usernameView.text = "${profileViewModel.firstName.value} ${profileViewModel.lastName.value}"
@@ -140,9 +137,21 @@ class ProfileFragment : Fragment() {
 
     }
 
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun fetchUserImage() {
+        val imageRef = storageReference.child("images/${Firebase.auth.currentUser!!.uid}")
+        imageRef.getBytes(1024 * 1024).addOnSuccessListener {
+            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+            userPictureView.setImageBitmap(bitmap)
+        }.addOnFailureListener {
+            println("DEBUG: User does not currently have a set display photo.")
+            userPictureView.setImageResource(R.drawable.temporary_display_photo)
+        }
     }
 
     // TODO: implement with drop in team
