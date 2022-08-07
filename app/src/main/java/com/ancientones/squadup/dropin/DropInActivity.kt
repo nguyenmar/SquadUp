@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityDropInBinding
-import com.ancientones.squadup.ui.profile.ProfileViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -15,10 +14,11 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
-import java.util.ArrayList
+
 
 class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var binding: ActivityDropInBinding
@@ -26,6 +26,7 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     //private var location: GeoPoint = GeoPoint(0.0,0.0)
     private lateinit var dropInViewModel: DropInViewModel
     private var documentID = ""
+    var currentUser = Firebase.auth.currentUser!!.uid
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,36 +48,45 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         var startTime = ""
         var endTime = ""
         var numParticipants: Long = 0
-        var currentUser = Firebase.auth.currentUser!!.uid
-        if (bundle != null){
+
+        if (bundle != null) {
             documentID = bundle["documentID"].toString()
         }
-
         dropInViewModel.fetchDropIn(documentID)
         dropInViewModel.fetchUserID()
-
         dropInViewModel.members.observe(this) {
+            var list = dropInViewModel.members.value!!
             binding.onTheWay.text = "${dropInViewModel.members.value!!.count()} on their way"
             val listCount = dropInViewModel.members.value!!.count().toLong()
             val spotRemain = dropInViewModel.numParticipants.value?.minus(listCount)
             binding.spotsRemain.text = "$spotRemain spots remaining"
+            if("${dropInViewModel.hostID.value}" != currentUser){
+                if(list.contains(currentUser)){
+                    println("member is present in list")
+                    binding.joinButton.text = "Leave Drop-in"
+                }
+            }
         }
 
         dropInViewModel.sport.observe(this) {
             binding.titleDropIn.text = "${dropInViewModel.sport.value} Drop-in"
         }
         dropInViewModel.firstName.observe(this) {
-            binding.hostName.text = "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
+            binding.hostName.text =
+                "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
         }
         dropInViewModel.lastName.observe(this) {
-            binding.hostName.text = "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
+            binding.hostName.text =
+                "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
         }
-        println("debug: current user: $currentUser")
+
         dropInViewModel.startTime.observe(this) {
-            binding.timeDropIn.text = "${dropInViewModel.startTime.value} - ${dropInViewModel.endTime.value}"
+            binding.timeDropIn.text =
+                "${dropInViewModel.startTime.value} - ${dropInViewModel.endTime.value}"
         }
         dropInViewModel.endTime.observe(this) {
-            binding.timeDropIn.text = "${dropInViewModel.startTime.value} - ${dropInViewModel.endTime.value}"
+            binding.timeDropIn.text =
+                "${dropInViewModel.startTime.value} - ${dropInViewModel.endTime.value}"
         }
         dropInViewModel.comments.observe(this) {
             binding.aboutDropIn.text = "${dropInViewModel.comments.value}"
@@ -91,19 +101,22 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         dropInViewModel.skillLevel.observe(this) {
             binding.skillLevelDropIn.text = "${dropInViewModel.skillLevel.value}"
         }
-
-        binding.joinButton.setOnClickListener {
-            joinDropIn()
-
-        if (dropInViewModel.hostID == dropInViewModel.userID) {
-            binding.joinButton.setText("Update Drop-In")
-            binding.joinButton.setOnClickListener {
-                updateDropIn()
+        dropInViewModel.hostID.observe(this) {
+            if ("${dropInViewModel.hostID.value}" == currentUser) {
+                binding.joinButton.text = "Update Drop-in"
             }
-        }
-        else {
+
+
             binding.joinButton.setOnClickListener {
-                joinDropIn()
+                if (binding.joinButton.text == "Update Drop-in") {
+                    updateDropIn()
+                }
+                else if (binding.joinButton.text == "Leave Drop-in"){
+                    leaveDropIn()
+                }
+                else{
+                    joinDropIn()
+                }
             }
         }
     }
@@ -115,11 +128,29 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
     private fun joinDropIn() {
-        //temporary until hostID == userID figured out
-        val intent = Intent(this, EditDropInActivity::class.java)
-        intent.putExtra("documentID", documentID)
-        startActivity(intent)
-        //finish()
+        val db = FirebaseFirestore.getInstance()
+        db.collection("dropin").document(documentID)
+
+        val addUserToArrayMap: MutableMap<String, Any> = HashMap()
+        addUserToArrayMap["members"] = FieldValue.arrayUnion(currentUser)
+
+        db.collection("dropin").document(documentID)
+            .update(addUserToArrayMap)
+
+        finish()
+    }
+
+    private fun leaveDropIn(){
+        val db = FirebaseFirestore.getInstance()
+        db.collection("dropin").document(documentID)
+
+        val removeUserFromArrayMap: MutableMap<String, Any> = HashMap()
+        removeUserFromArrayMap["members"] = FieldValue.arrayRemove(currentUser)
+
+        db.collection("dropin").document(documentID)
+            .update(removeUserFromArrayMap)
+
+        finish()
     }
 
 
