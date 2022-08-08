@@ -1,11 +1,12 @@
 package com.ancientones.squadup.dropin
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.location.Geocoder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityEditDropInBinding
@@ -13,16 +14,18 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import java.io.IOException
-import java.util.ArrayList
-import java.util.HashMap
+import java.text.DateFormatSymbols
+import java.util.*
 
 //Need to: only let creator of drop in be able to edit it (this should be done in mapfragment)
 //Implement date/time
 //Convert from latlng back to address
 
-class EditDropInActivity : AppCompatActivity() {
+class EditDropInActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     private lateinit var binding: ActivityEditDropInBinding
     private lateinit var dropInViewModel: DropInViewModel
+    private val calendar = Calendar.getInstance()
+    private var isStartTime: Boolean = false
 
     var documentID = ""
     var comments = ""
@@ -32,6 +35,10 @@ class EditDropInActivity : AppCompatActivity() {
     var sport = ""
     var skillLevel = ""
     var numParticipants = ""
+
+    companion object{
+        val dialogViewModel = DialogViewModel()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +74,19 @@ class EditDropInActivity : AppCompatActivity() {
         val participantsEdit = binding.editParticipantsText
         val commentEdit = binding.editCommentsText
 
+        startTimeEdit.setOnClickListener {
+            onClickTime(binding.root)
+            isStartTime = true
+        }
+        endTimeEdit.setOnClickListener {
+            onClickTime(binding.root)
+            isStartTime = false
+        }
+
+        dateEdit.setOnClickListener {
+            onClickDate(binding.root)
+        }
+
         dropInViewModel.fetchDropIn(documentID)
         dropInViewModel.fetchUserID()
 
@@ -81,6 +101,9 @@ class EditDropInActivity : AppCompatActivity() {
         }
         dropInViewModel.location.observe(this) {
             locationEdit.setText(getAddressfromLatLng(dropInViewModel.location.value!!))
+        }
+        dropInViewModel.date.observe(this) {
+            dateEdit.setText("${dropInViewModel.date.value}")
         }
         dropInViewModel.startTime.observe(this) {
             startTimeEdit.setText("${dropInViewModel.startTime.value}")
@@ -123,13 +146,11 @@ class EditDropInActivity : AppCompatActivity() {
 
     private fun saveFireStore(){
         val db = FirebaseFirestore.getInstance()
+        db.collection("dropin").document(documentID)
+
         val dropin: MutableMap<String,Any> = HashMap()
         val latlng = getLocationFromAddress(binding.editLocationText.text.toString())
 
-
-        if (latlng != null) {
-            dropin["location"] = GeoPoint(latlng.latitude, latlng.longitude)
-        }
 
         if (binding.editSportSpinner.selectedItem != null) {
             dropin["sport"] = binding.editSportSpinner.selectedItem.toString()
@@ -139,20 +160,45 @@ class EditDropInActivity : AppCompatActivity() {
             dropin["skillLevel"] = binding.editLevelSpinner.selectedItem.toString()
         }
 
-        if (binding.editCommentsText.text != null) {
-            dropin["comments"] = binding.editCommentsText.text.toString()
+        if (latlng != null) {
+            dropin["location"] = GeoPoint(latlng.latitude, latlng.longitude)
+        }
+
+        if (binding.editDate.text != null) {
+            dropin["date"] = binding.editDate.text.toString()
+        }
+
+        if (binding.editStartTime.text != null) {
+            dropin["startTime"] = binding.editStartTime.text.toString()
+        }
+
+        if (binding.editEndTime.text != null) {
+            dropin["endTime"] = binding.editEndTime.text.toString()
         }
 
         if (binding.editParticipantsText.text != null) {
             dropin["numParticipants"] = binding.editParticipantsText.text.toString()
         }
 
+        if (binding.editCommentsText.text != null) {
+            dropin["comments"] = binding.editCommentsText.text.toString()
+        }
 
+
+/*
         db.collection("dropin")
             .add(dropin)
             .addOnSuccessListener { Toast.makeText((this), "Drop-in successfully created", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {Toast.makeText((this), "Drop-in failed to be created", Toast.LENGTH_SHORT).show()
+            }
+
+ */
+
+        db.collection("dropin").document(documentID).update(dropin)
+            .addOnSuccessListener { Toast.makeText((this), "Drop-in successfully updated", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { Toast.makeText((this), "Drop-in failed to be updated", Toast.LENGTH_SHORT).show()
             }
 
         finish()
@@ -190,6 +236,39 @@ class EditDropInActivity : AppCompatActivity() {
         val country: String = fullAddress[0].getCountryName()
 
         return address
+    }
+
+    private fun onClickTime(view: View){
+        val timePickerDialog = TimePickerDialog(this, this,
+            calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false
+        )
+        timePickerDialog.show()
+    }
+
+    private fun onClickDate(view: View){
+        val datePickerDialog = DatePickerDialog(this, this,
+            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.show()
+    }
+
+    override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+        if (isStartTime) {
+            binding.editStartTime.setText("$hourOfDay:$minute")
+            AddDropInActivity.dialogViewModel.setStartTime("$hourOfDay:$minute")
+        }
+        else {
+            binding.editEndTime.setText("$hourOfDay:$minute")
+            AddDropInActivity.dialogViewModel.setEndTime("$hourOfDay:$minute")
+        }
+
+    }
+
+    override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
+        val date = "${DateFormatSymbols().months[month]} $dayOfMonth, $year"
+        AddDropInActivity.dialogViewModel.setDate(date)
+        binding.editDate.setText(date)
     }
 
 

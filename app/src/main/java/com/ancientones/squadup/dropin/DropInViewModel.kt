@@ -93,7 +93,7 @@ class DropInViewModel: ViewModel() {
                     _startTime.value = document.get("startTime").toString()
                     _endTime.value = document.get("endTime").toString()
                     _comments.value = document.get("comments").toString()
-                    _numParticipants.value = document.get("numParticipants") as Long
+                    _numParticipants.value = document.get("numParticipants").toString().toLong()
                     _skillLevel.value = document.get("skillLevel").toString()
                     _date.value = document.get("date").toString()
                     _hostID.value = document.get("hostID").toString()
@@ -125,5 +125,6 @@ class DropInViewModel: ViewModel() {
                 Log.e("firebase", "error getting data", it)
             }
     }
+
 }
 
