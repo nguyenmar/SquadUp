@@ -24,6 +24,10 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -114,10 +118,6 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         }
         dropInViewModel.numParticipants.observe(this) {
             binding.participantsDropIn.text = "${dropInViewModel.numParticipants.value}"
-            /*val listCount = dropInViewModel.members.value!!.count().toLong()
-            val spotRemain = dropInViewModel.numParticipants.value?.minus(listCount)
-            binding.spotsRemain.text = "$spotRemain spots remaining"*/
-
         }
         dropInViewModel.skillLevel.observe(this) {
             binding.skillLevelDropIn.text = "${dropInViewModel.skillLevel.value}"
@@ -125,6 +125,9 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         dropInViewModel.hostID.observe(this) {
             if ("${dropInViewModel.hostID.value}" == currentUser) {
                 binding.joinButton.text = "Update Drop-in"
+                if(correctDate("${dropInViewModel.date.value}", "${dropInViewModel.startTime.value}")){
+                    binding.joinButton.text = "Complete Drop-in"
+                }
             }
 
 
@@ -143,6 +146,32 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
                 }
             }
         }
+    }
+
+    private fun correctDate(date: String, startTime: String): Boolean {
+
+        println("running correct Date check")
+
+        var sdf = SimpleDateFormat("MMMM d, yyyy")
+        var currentDate: String = sdf.format(Date())
+
+        var sdfTime = SimpleDateFormat("H:m")
+        var currentTime: String = sdfTime.format(Date())
+
+        val formatter = DateTimeFormatter.ofPattern("H:m")
+        var currentTimeParsed = LocalTime.parse(currentTime, formatter)
+        var startTimeParsed = LocalTime.parse(startTime, formatter)
+
+        println(startTimeParsed)
+        println(currentTimeParsed)
+
+        if (currentDate == date && currentTimeParsed.isBefore(startTimeParsed) &&
+            Duration.between(startTimeParsed, currentTimeParsed).toMinutes() <= 5) {
+            println("returning true")
+            return true
+        }
+        println("returning false")
+        return false
     }
 
     private fun updateDropIn() {
