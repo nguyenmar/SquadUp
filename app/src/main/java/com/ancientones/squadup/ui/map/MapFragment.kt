@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ToggleButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,6 +32,7 @@ import com.ancientones.squadup.databinding.ActivityMainBinding
 import com.ancientones.squadup.dropin.AddDropInActivity
 import com.ancientones.squadup.dropin.DropInActivity
 import com.ancientones.squadup.dropin.DropInViewModel
+import com.google.android.gms.common.util.ArrayUtils.toArrayList
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -89,6 +91,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var dialogShown = false
     var mMarkers: MutableList<Marker> = ArrayList()
 
+    private lateinit var  markerOptions: MarkerOptions
+    var mMarkerOptionsList: MutableList<MarkerOptions> = ArrayList()
 
     private lateinit var locationGeo: GeoPoint
 
@@ -120,7 +124,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         currentUser = Firebase.auth.currentUser!!.uid
 
-
+        markerOptions = MarkerOptions()
 
 
     }
@@ -143,6 +147,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         toggleButton = rootView.findViewById(R.id.toggleButton)
         toggleButton.check(R.id.nearbyButton)
+        toggleButton.isSelectionRequired = true
 
         checkedButton = toggleButton.checkedButtonId
 
@@ -177,6 +182,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         val db = FirebaseFirestore.getInstance()
         var location: LatLng = LatLng(0.0, 0.0)
+        locationLatLng = LatLng(0.0,0.0) //tmp?
 
         checkedButton = toggleButton.checkedButtonId
 
@@ -209,13 +215,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                                 if (geoPoint != null) {
                                     location = LatLng(geoPoint.latitude, geoPoint.longitude)
                                 }
-                                var marker = mMap.addMarker(
-                                    MarkerOptions().position(location).title(documentID)
-                                )
 
-                                if (marker != null) {
-                                    mMarkers.add(marker)
-                                }
+                                //var marker = mMap.addMarker(MarkerOptions().position(location).title(documentID))
+
+                                //if (marker != null) {
+                                    //mMarkers.add(marker)
+                                //}
+
                             }
 
                             membersList.forEach { it ->
@@ -242,7 +248,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                             }
 
 
-                            if (sportType == checkedSport || checkedSport == "Nearby") {
+                            if ((sportType == checkedSport || checkedSport == "Nearby") && isCompleted == false) {
+                                //mMarkerOptionsList.add(markerOptions.position(location).title(documentID))
                                 mMap.addMarker(MarkerOptions().position(location).title(documentID))
                             }
 
@@ -292,17 +299,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             dropInViewModel.location.observe(this) {
                 locationGeo = dropInViewModel.location.value!!
                 locationLatLng = LatLng(locationGeo.latitude, locationGeo.longitude)
+            }
 
-
-                if (closeTo(locationLatLng, locationList.last()) && correctDate(date, startTime, endTime) && !dialogShown) {
-                    //dialog
-                    dialogFragment = AlertDialogFragment()
-                    dialogFragment.dialogType = "Automatic"
-                    dialogFragment.show(requireActivity().supportFragmentManager, "dialog")
-                    dialogShown = true
-                }
-
-
+            //need to move
+            if (closeTo(locationLatLng, locationList.last()) && correctDate(date, startTime, endTime) && !dialogShown) {
+                //dialog
+                dialogFragment = AlertDialogFragment()
+                dialogFragment.dialogType = "Automatic"
+                dialogFragment.show(requireActivity().supportFragmentManager, "dialog")
+                dialogShown = true
             }
 
         }
@@ -356,8 +361,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         var currentTimeParsed = LocalTime.parse(currentTime, formatter)
         var startTimeParsed = LocalTime.parse(startTime, formatter)
 
+        var test = Duration.between(startTimeParsed, currentTimeParsed).toMinutes()
+        Log.d("tag2","current date: $currentDate , event date: $date")
+        Log.d("tag","current time: $currentTime , startTime: $startTime")
+        Log.d("tag3", "Duration between is: $test")
+
         if (currentDate == date && currentTimeParsed.isBefore(startTimeParsed) &&
-            Duration.between(startTimeParsed, currentTimeParsed).toMinutes() <= 30) {
+            abs(Duration.between(startTimeParsed, currentTimeParsed).toMinutes()) <= 30) {
                 return true
         }
 
