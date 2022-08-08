@@ -92,6 +92,10 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
             binding.hostName.text =
                 "${dropInViewModel.firstName.value} ${dropInViewModel.lastName.value}"
         }
+        dropInViewModel.date.observe(this) {
+            binding.dateDropIn.text =
+                "${dropInViewModel.date.value}"
+        }
 
         dropInViewModel.startTime.observe(this) {
             binding.timeDropIn.text =

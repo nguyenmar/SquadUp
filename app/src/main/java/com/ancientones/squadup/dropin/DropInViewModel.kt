@@ -95,7 +95,7 @@ class DropInViewModel: ViewModel() {
                     _comments.value = document.get("comments").toString()
                     _numParticipants.value = document.get("numParticipants").toString().toLong()
                     _skillLevel.value = document.get("skillLevel").toString()
-                    println("debug: ${document.get("members")}")
+                    _date.value = document.get("date").toString()
                     _hostID.value = document.get("hostID").toString()
                     _members.value = document.get("members") as MutableList<String>
                 } else {
@@ -106,9 +106,7 @@ class DropInViewModel: ViewModel() {
                 println("failed to get document")
             }
     }
-    fun addMembertoDropIn(documentID: String){
 
-    }
     fun fetchUserID(){
 
         val userId = Firebase.auth.currentUser!!.uid
