@@ -6,6 +6,7 @@ import android.location.Geocoder
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +24,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
+import java.util.*
+import kotlin.collections.HashMap
 
 
 class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
@@ -33,6 +36,7 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     private var documentID = ""
     var currentUser = Firebase.auth.currentUser!!.uid
     lateinit var dialogFragment: AlertDialogFragment
+    private val calendar = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -177,7 +181,17 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
 
     private fun completeDropIn(){
         //send rating activity notification to members
-        //delete drop-in
+        //mark drop-in as complete
+        val db = FirebaseFirestore.getInstance()
+        db.collection("dropin").document(documentID)
+            .update("isCompleted", true)
+            .addOnSuccessListener { Toast.makeText((this), "Drop-in successfully completed", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { Toast.makeText((this), "Drop-in failed to be completed", Toast.LENGTH_SHORT).show()
+            }
+
+        finish()
+
         //delete chat
 
         //finish()
