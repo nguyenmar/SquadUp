@@ -22,4 +22,10 @@
         android:name="com.ancientones.squadup.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_history"
+        android:name="com.ancientones.squadup.ui.dropin.HistoryFragment"
+        android:label="@string/title_history"
+        tools:layout="@layout/fragment_history" />
 </navigation>
