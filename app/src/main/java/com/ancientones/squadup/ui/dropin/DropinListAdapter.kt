@@ -12,6 +12,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.BaseAdapter
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.dropin.DropInActivity
 import com.ancientones.squadup.dropin.DropInMembersActivity
@@ -65,14 +66,15 @@ class DropinListAdapter(private val context: Context, private var documentsList:
         view.setOnClickListener{
 
             val intent = Intent(context, DropInMembersActivity::class.java)
-            println(members)
-            members.remove(Firebase.auth.currentUser!!.uid)
-            println(Firebase.auth.currentUser!!.uid)
-            println(members)
 
-
-            intent.putStringArrayListExtra("memberList", members)
-            context.startActivity(intent)
+            if (members.contains(Firebase.auth.currentUser!!.uid)) {
+                members.remove(Firebase.auth.currentUser!!.uid)
+                intent.putStringArrayListExtra("memberList", members)
+                context.startActivity(intent)
+            }
+            else{
+                Toast.makeText(context, "You were not apart of this drop-in", Toast.LENGTH_SHORT).show()
+            }
         }
         return view
     }

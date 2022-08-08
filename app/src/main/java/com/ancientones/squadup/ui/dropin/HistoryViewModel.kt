@@ -9,15 +9,22 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class HistoryViewModel: ViewModel(){
     private val _documentList = MutableLiveData<MutableList<String>>()
+    private val _uncompletedDocuments = MutableLiveData<MutableList<String>>()
 
     val documentList: LiveData<MutableList<String>>
         get(){
             return _documentList
         }
 
+    val uncompletedDocuments: LiveData<MutableList<String>>
+        get(){
+            return _uncompletedDocuments
+        }
+
     fun getCompletedDropins(){
         val db = FirebaseFirestore.getInstance()
-        val documentIDs: MutableList<String> = ArrayList()
+        val completedIDs: MutableList<String> = ArrayList()
+        val uncompletedIDs: MutableList<String> = ArrayList()
         db.collection("dropin")
             .addSnapshotListener { value, e ->
                 if (e != null) {
@@ -26,7 +33,7 @@ class HistoryViewModel: ViewModel(){
                 }
                 if (value != null) {
                     println("debug: getting completed drop-ins")
-                    documentIDs.clear()
+                    completedIDs.clear()
                     val documents = value.documents
 
                     documents.forEach {
@@ -35,13 +42,15 @@ class HistoryViewModel: ViewModel(){
                         val sportType = it.getString("sport")
 
                         if (isCompleted == true) {
-                            documentIDs.add("${it.id}")
+                            completedIDs.add("${it.id}")
+                        }
+                        else if (isCompleted == false){
+                            uncompletedIDs.add("${it.id}")
                         }
                     }
-                    _documentList.value = documentIDs
+                    _documentList.value = completedIDs
+                    _uncompletedDocuments.value = uncompletedIDs
                 }
             }
-
-        println(documentIDs)
     }
 }

@@ -20,6 +20,7 @@ import com.ancientones.squadup.TrackingService
 import com.ancientones.squadup.dropin.AddDropInActivity
 import com.ancientones.squadup.dropin.DropInActivity
 import com.ancientones.squadup.dropin.DropInViewModel
+
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -64,6 +65,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var dropInViewModel: DropInViewModel
 
+
     private lateinit var currentUser: String
 
     private lateinit var userDropIns: ArrayList<String>
@@ -88,6 +90,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private var checkedButton = 0
 
+
     private var checkedSport = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,6 +106,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         userDropIns = ArrayList()
 
         dropInViewModel = ViewModelProvider(this).get(DropInViewModel::class.java)
+
 
         currentUser = Firebase.auth.currentUser!!.uid
 
@@ -146,8 +150,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     }
 
-
-
     override fun onMapReady(googleMap: GoogleMap) {
         checkPermission()
         mMap = googleMap
@@ -156,18 +158,17 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-
         mapViewModel.bundle.observe(this) {
             updateMap(it)
         }
 
-        // TODO: MOVE ALL THIS TO VIEW MODEL
 
         val db = FirebaseFirestore.getInstance()
         var location: LatLng = LatLng(0.0, 0.0)
         locationLatLng = LatLng(0.0,0.0) //tmp?
 
         checkedButton = toggleButton.checkedButtonId
+
 
         db.collection("dropin")
             .addSnapshotListener { value, e ->
@@ -197,14 +198,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                                 println(geoPoint)
                                 if (geoPoint != null) {
                                     location = LatLng(geoPoint.latitude, geoPoint.longitude)
+                                    val marker = mMap.addMarker(MarkerOptions().position(location).title(documentID))
+                                    if (marker != null) {
+                                        mMarkers.add(marker)
+                                    }
                                 }
-
-                                //var marker = mMap.addMarker(MarkerOptions().position(location).title(documentID))
-
-                                //if (marker != null) {
-                                    //mMarkers.add(marker)
-                                //}
-
                             }
 
                             membersList.forEach { it ->
@@ -215,31 +213,37 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                             }
 
                             //are there 2 markers?
-                            if (checkedButton == R.id.nearbyButton) {
-                                checkedSport = "Nearby"
-                            }
-                            if (checkedButton == R.id.soccerButton) {
-                                checkedSport = "Soccer"
-                            }
+                            toggleButton.addOnButtonCheckedListener { group, checkedId, isChecked ->
 
-                            if (checkedButton == R.id.basketballButton) {
-                                checkedSport = "Basketball"
+                                for (marker: Marker in mMarkers) {
+                                    marker.remove()
+                                }
+                                mMarkers.clear()
+
+                                if (checkedId == R.id.nearbyButton && isChecked){
+                                    checkedSport = "Nearby"
+                                }
+                                if (checkedId == R.id.soccerButton && isChecked){
+                                    checkedSport = "Soccer"
+                                }
+                                if (checkedId == R.id.basketballButton && isChecked){
+                                    checkedSport = "Basketball"
+                                }
+
+                                if (checkedId == R.id.hockeyButton && isChecked){
+                                    checkedSport = "Hockey"
+                                }
+
+                                if ((sportType == checkedSport || checkedSport == "Nearby") && isCompleted == false) {
+                                    val marker = mMap.addMarker(MarkerOptions().position(location).title(documentID))
+                                    if (marker != null) {
+                                        mMarkers.add(marker)
+                                    }
+                                }
                             }
-
-                            if (checkedButton == R.id.hockeyButton) {
-                                checkedSport = "Hockey"
-                            }
-
-
-                            if ((sportType == checkedSport || checkedSport == "Nearby") && isCompleted == false) {
-                                //mMarkerOptionsList.add(markerOptions.position(location).title(documentID))
-                                mMap.addMarker(MarkerOptions().position(location).title(documentID))
-                            }
-
                         }
                     }
                 }
-
                 mMap.setOnMarkerClickListener { marker ->
                     val intent = Intent(context, DropInActivity::class.java)
                     intent.putExtra("documentID", marker.title)
@@ -250,6 +254,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
     }
 
+    private fun updateMarkers(mMap: GoogleMap){
+
+    }
     private fun updateMap(bundle: Bundle) {
 
         if (bundle.getString(TrackingService.LOC_KEY) != null) {
