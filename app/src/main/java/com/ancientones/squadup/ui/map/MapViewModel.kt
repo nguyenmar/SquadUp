@@ -1,4 +1,4 @@
-package com.ancientones.squadup
+package com.ancientones.squadup.ui.map
 
 import android.os.*
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.ancientones.squadup.TrackingService
 
 //Note: Ideas taken from CMPT 362 Class Lecture examples
 

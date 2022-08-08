@@ -5,43 +5,28 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ToggleButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.ancientones.squadup.AlertDialogFragment
-import com.ancientones.squadup.MapViewModel
 import com.ancientones.squadup.R
 import com.ancientones.squadup.TrackingService
-import com.ancientones.squadup.databinding.ActivityMainBinding
 import com.ancientones.squadup.dropin.AddDropInActivity
 import com.ancientones.squadup.dropin.DropInActivity
 import com.ancientones.squadup.dropin.DropInViewModel
-import com.google.android.gms.common.util.ArrayUtils.toArrayList
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.*
 import com.google.firebase.ktx.Firebase
@@ -50,13 +35,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.Math.*
 import java.lang.reflect.Type
-import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import java.util.concurrent.Flow
 import kotlin.collections.ArrayList
 import kotlin.math.pow
 
@@ -78,7 +61,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var toggleButton: MaterialButtonToggleGroup
 
-    private lateinit var binding: ActivityMainBinding
 
     private lateinit var dropInViewModel: DropInViewModel
 
@@ -137,7 +119,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val rootView: View = inflater.inflate(R.layout.fragment_map, container, false)
 
 
-
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
 
@@ -179,6 +160,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapViewModel.bundle.observe(this) {
             updateMap(it)
         }
+
+        // TODO: MOVE ALL THIS TO VIEW MODEL
 
         val db = FirebaseFirestore.getInstance()
         var location: LatLng = LatLng(0.0, 0.0)
