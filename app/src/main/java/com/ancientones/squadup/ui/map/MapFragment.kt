@@ -5,8 +5,6 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,12 +14,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.ancientones.squadup.MapViewModel
 import com.ancientones.squadup.R
 import com.ancientones.squadup.TrackingService
@@ -33,16 +25,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.*
-import com.google.firebase.ktx.Firebase
-
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
-import java.util.concurrent.Flow
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -61,6 +48,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fab: FloatingActionButton
 
     private lateinit var binding: ActivityMainBinding
+
+    var mMarkers: MutableList<Marker> = ArrayList()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,9 +108,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapViewModel.bundle.observe(this) {
             updateMap(it)
         }
+        //mapViewModel.fetchDropIns()
 
         val db = FirebaseFirestore.getInstance()
         var location: LatLng = LatLng(0.0,0.0)
+
+        /*mapViewModel.isCompleted.observe(this) {
+
+        }*/
+
+
 
         db.collection("dropin")
             .addSnapshotListener { value, e ->
@@ -130,20 +126,36 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     return@addSnapshotListener
                 }
                 if(value != null){
+                    println("debug: database changed")
                     val documents = value.documents
+                    for(marker: Marker in mMarkers)
+                    {
+                        marker.remove()
+                    }
+                    mMarkers.clear()
+
                     documents.forEach{
+                        println("debug: ${it.id}")
                         val documentID = it.id
-                        val geoPoint = it.getGeoPoint("location")
-                        println(documentID)
-                        println(geoPoint)
-                        if (geoPoint != null) {
-                            location = LatLng(geoPoint.latitude, geoPoint.longitude)
+                        val isCompleted = it.getBoolean("isCompleted")
+
+                        if (isCompleted == false) {
+                            val geoPoint = it.getGeoPoint("location")
+                            println(documentID)
+                            println(geoPoint)
+                            if (geoPoint != null) {
+                                location = LatLng(geoPoint.latitude, geoPoint.longitude)
+                            }
+                            var marker = mMap.addMarker(MarkerOptions().position(location).title(documentID))
+
+                            if (marker != null) {
+                                mMarkers.add(marker)
+                            }
                         }
-                        mMap.addMarker(MarkerOptions().position(location).title(documentID))
+
                     }
                 }
             }
-
 
         mMap.setOnMarkerClickListener { marker ->
             val intent = Intent(context, DropInActivity::class.java)
@@ -151,6 +163,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             startActivity(intent)
             true
         }
+
     }
 
     private fun updateMap(bundle: Bundle) {

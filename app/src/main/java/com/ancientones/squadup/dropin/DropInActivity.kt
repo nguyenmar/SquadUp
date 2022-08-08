@@ -118,6 +118,9 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
                 else if (binding.joinButton.text == "Leave Drop-in"){
                     leaveDropIn()
                 }
+                else if (binding.joinButton.text == "Complete Drop-in"){
+                    completeDropIn()
+                }
                 else{
                     joinDropIn()
                 }
@@ -157,6 +160,13 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         finish()
     }
 
+    private fun completeDropIn(){
+        //send rating activity notification to members
+        //delete drop-in
+        //delete chat
+
+        //finish()
+    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         println("on map rdy")
