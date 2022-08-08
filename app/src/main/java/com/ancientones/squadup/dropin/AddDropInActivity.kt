@@ -1,9 +1,11 @@
 package com.ancientones.squadup.dropin
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.location.Geocoder
 import android.os.Bundle
-import android.widget.Spinner
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
@@ -14,12 +16,21 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
 import java.io.IOException
+import java.text.DateFormatSymbols
 import java.util.*
 
 
-class AddDropInActivity : AppCompatActivity() {
+class AddDropInActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     private lateinit var binding: ActivityAddDropInBinding
     private lateinit var dropInViewModel: DropInViewModel
+    private val calendar = Calendar.getInstance()
+    private lateinit var dateText: EditText
+    private lateinit var startTimeText: EditText
+    private lateinit var endTimeText: EditText
+    private var isStartTime: Boolean = false
+    companion object{
+        val dialogViewModel = DialogViewModel()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +42,23 @@ class AddDropInActivity : AppCompatActivity() {
 
         binding.saveButton.setOnClickListener {
             saveFireStore()
+        }
+
+        startTimeText = binding.startTime
+        endTimeText = binding.endTime
+        dateText = binding.date
+
+        startTimeText.setOnClickListener {
+            onClickTime(binding.root)
+            isStartTime = true
+        }
+        endTimeText.setOnClickListener {
+            onClickTime(binding.root)
+            isStartTime = false
+        }
+
+        dateText.setOnClickListener {
+            onClickDate(binding.root)
         }
 
     }
@@ -94,6 +122,7 @@ class AddDropInActivity : AppCompatActivity() {
             dropin["comments"] = binding.commentsText.text.toString()
             dropin["startTime"] = binding.startTime.text.toString()
             dropin["endTime"] = binding.endTime.text.toString()
+            dropin["date"] = binding.date.text.toString()
             dropin["numParticipants"] = binding.participantsText.text.toString().toInt()
             dropin["members"] = list
             db.collection("dropin")
@@ -127,6 +156,39 @@ class AddDropInActivity : AppCompatActivity() {
             ex.printStackTrace()
         }
         return latlng
+    }
+
+    private fun onClickTime(view: View){
+        val timePickerDialog = TimePickerDialog(this, this,
+            calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false
+        )
+        timePickerDialog.show()
+    }
+
+    private fun onClickDate(view: View){
+        val datePickerDialog = DatePickerDialog(this, this,
+            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.show()
+    }
+
+    override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+        if (isStartTime) {
+            binding.startTime.setText("$hourOfDay:$minute")
+            dialogViewModel.setStartTime("$hourOfDay:$minute")
+        }
+        else {
+            binding.endTime.setText("$hourOfDay:$minute")
+            dialogViewModel.setEndTime("$hourOfDay:$minute")
+        }
+
+    }
+
+    override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
+        val date = "${DateFormatSymbols().months[month]} $dayOfMonth, $year"
+        dialogViewModel.setDate(date)
+        binding.date.setText(date)
     }
 
 }

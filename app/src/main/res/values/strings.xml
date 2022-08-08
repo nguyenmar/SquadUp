@@ -59,6 +59,13 @@
         <item>Elite</item>
         <item>All</item>
     </string-array>
+
+    <string-array name="dialogInputs">
+        <item>Date</item>
+        <item>StartTime</item>
+        <item>EndTime</item>
+    </string-array>
+
     <string name="edit_profile">Edit Profile</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save Changes</string>
