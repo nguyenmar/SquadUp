@@ -60,6 +60,7 @@
         <item>All</item>
     </string-array>
 
+    <!--  Profile/Auth Strings  -->
 
     <string name="edit_profile">Edit Profile</string>
     <string name="cancel">Cancel</string>

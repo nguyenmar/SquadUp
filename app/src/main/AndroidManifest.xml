@@ -32,6 +32,9 @@
             android:name=".dropin.DropInActivity"
             android:exported="false" />
         <activity
+            android:name=".dropin.DropInMembersActivity"
+            android:exported="false" />
+        <activity
             android:name=".AuthActivity"
             android:exported="true"
             android:theme="@style/Theme.Design.NoActionBar">
