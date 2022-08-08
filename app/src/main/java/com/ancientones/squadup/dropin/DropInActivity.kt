@@ -1,10 +1,15 @@
 package com.ancientones.squadup.dropin
 
+import android.content.Context
 import android.content.Intent
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.AttributeSet
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
+import com.ancientones.squadup.AlertDialogFragment
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityDropInBinding
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -27,6 +32,7 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var dropInViewModel: DropInViewModel
     private var documentID = ""
     var currentUser = Firebase.auth.currentUser!!.uid
+    lateinit var dialogFragment: AlertDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,13 +51,20 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
 
         val intent = intent
         val bundle = intent.extras
-        var startTime = ""
-        var endTime = ""
-        var numParticipants: Long = 0
 
         if (bundle != null) {
             documentID = bundle["documentID"].toString()
         }
+
+        populateDropIn()
+
+    }
+
+    private fun populateDropIn() {
+        var startTime = ""
+        var endTime = ""
+        var numParticipants: Long = 0
+
         dropInViewModel.fetchDropIn(documentID)
         dropInViewModel.fetchUserID()
         dropInViewModel.members.observe(this) {
@@ -137,7 +150,9 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         db.collection("dropin").document(documentID)
             .update(addUserToArrayMap)
 
-        finish()
+        dialogFragment = AlertDialogFragment()
+        dialogFragment.dialogType = "Join"
+        dialogFragment.show(supportFragmentManager, "dialog")
     }
 
     private fun leaveDropIn(){
@@ -185,5 +200,10 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         val country: String = fullAddress[0].getCountryName()
 
         return address
+    }
+
+    override fun onResume() {
+        super.onResume()
+        populateDropIn()
     }
 }
