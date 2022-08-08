@@ -51,8 +51,6 @@ class ChatActivity : AppCompatActivity() {
         binding = ActivityChatBinding.inflate(layoutInflater);
         setContentView(binding.root);
 
-        println("debugx: chat activity onCreate")
-
         // back button
         var actionBar = supportActionBar;
         if(actionBar != null){
@@ -66,8 +64,6 @@ class ChatActivity : AppCompatActivity() {
             binding.messageEditBox.setText(msg);
         }
 
-        // emulator stuff here
-
         // auth
 //        auth = Firebase.auth;
 //        if(auth.currentUser == null ){
@@ -75,19 +71,18 @@ class ChatActivity : AppCompatActivity() {
 //        }
 
         // db setup
-
         // for local only, todo: comment out later
-        if( BuildConfig.DEBUG ){
-            try{
-                Firebase.firestore.useEmulator("10.0.2.2", 8080);
-                val settings = FirebaseFirestoreSettings.Builder()
-                    .setPersistenceEnabled(false).build();
-                Firebase.firestore.firestoreSettings = settings;
-
-                // todo: setup storage firebase emulator
-                Firebase.storage.useEmulator("10.0.2.2", 9099);
-            } catch (e: Exception){}
-        }
+//        if( BuildConfig.DEBUG ){
+//            try{
+//                Firebase.firestore.useEmulator("10.0.2.2", 8080);
+//                val settings = FirebaseFirestoreSettings.Builder()
+//                    .setPersistenceEnabled(false).build();
+//                Firebase.firestore.firestoreSettings = settings;
+//
+//                // todo: setup storage firebase emulator
+//                //Firebase.storage.useEmulator("10.0.2.2", 9099);
+//            } catch (e: Exception){}
+//        }
         db = Firebase.firestore;
         storage = Firebase.storage;
 
@@ -142,7 +137,6 @@ class ChatActivity : AppCompatActivity() {
         };
 
         // image stuff
-
         // set result handler
         imageResult = registerForActivityResult( ActivityResultContracts.StartActivityForResult() ) {
             result: ActivityResult ->
@@ -204,8 +198,8 @@ class ChatActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        super.onPause();
         messageAdapter.stopListening();
+        super.onPause();
     }
 
     override fun onResume() {
