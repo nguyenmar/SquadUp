@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.MainActivity
 import com.ancientones.squadup.R
 import com.google.firebase.auth.FirebaseAuth
@@ -43,7 +45,7 @@ class SetUpProfileActivity : AppCompatActivity() {
     lateinit var sexRadioButtonMale: RadioButton
     lateinit var sexRadioButtonFemale: RadioButton
     lateinit var imageUri: Uri
-    var newPhotoFlag: Int = -1
+    private lateinit var profileImgViewModel: ProfileImgViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,10 +56,10 @@ class SetUpProfileActivity : AppCompatActivity() {
 
         firebaseStorage = Firebase.storage
         storageReference = firebaseStorage.reference
+        profileImgViewModel = ViewModelProvider(this).get(ProfileImgViewModel::class.java)
+
         userID = Firebase.auth.currentUser!!.uid
         imageView = findViewById(R.id.setup_display_picture)
-
-        imageView.setImageResource(R.drawable.temporary_display_photo)
         imageUri = Uri.parse("android.resource://com.ancientones.squadup/drawable/temporary_display_photo")
 
         ageEditText = findViewById(R.id.setup_profile_age)
@@ -68,6 +70,22 @@ class SetUpProfileActivity : AppCompatActivity() {
         sexRadioButtonMale = findViewById(R.id.setup_radio_male)
         sexRadioButtonFemale = findViewById(R.id.setup_radio_female)
 
+    }
+
+    override fun onResume(){
+        super.onResume()
+
+        profileImgViewModel.userImage.observe(this) {
+            if(profileImgViewModel.hasImage.value == true) {
+                imageView.setImageBitmap(profileImgViewModel.userImage.value)
+            }
+        }
+
+        profileImgViewModel.imgUri.observe(this) {
+            if (profileImgViewModel.newImage.value == true) {
+                imageView.setImageURI(profileImgViewModel.imgUri.value)
+            }
+        }
     }
 
     fun checkPermissions(activity: Activity?) {
@@ -122,8 +140,9 @@ class SetUpProfileActivity : AppCompatActivity() {
         db.child("userHeight").setValue(heightEditText.text.toString().toInt())
         db.child("userPhone").setValue("${phoneNumberEditText.text}")
         db.child("userDescription").setValue("${userDescriptionEditText.text}")
-        if (newPhotoFlag == 0) {
-            uploadPicture()
+        if (profileImgViewModel.newImage.value == true) {
+            val displayPhotoRef = storageReference.child("images/${userID}")
+            displayPhotoRef.putFile(profileImgViewModel.imgUri.value!!)
         }
 
         val userAuth = mAuth.currentUser
@@ -136,8 +155,10 @@ class SetUpProfileActivity : AppCompatActivity() {
     private val galleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if(it.resultCode == Activity.RESULT_OK) {
             imageUri = it.data?.data!!
-            imageView.setImageURI(imageUri)
-            newPhotoFlag = 0
+//            imageView.setImageURI(imageUri)
+//            newPhotoFlag = 0
+            profileImgViewModel.imgUri.value = imageUri
+            profileImgViewModel.newImage.value = true
         }
     }
 
