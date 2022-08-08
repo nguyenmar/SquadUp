@@ -3,8 +3,10 @@
     <!--    Navigation titles-->
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
     <string name="title_chat">Chat</string>
+    <string name="title_drop_ins">Drop-ins</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_notifications">Notifications</string>
 
     <string name="squad_up_header">SquadUp</string>
     <string name="squad_up_descriptions">A drop-in sports application designed to help users find locally organized sports drop-ins and make new friends.</string>
@@ -17,4 +19,69 @@
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="confirm_password">Confirm password</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Drop-in Strings -->
+
+    <string name="add_drop_in_header">Drop-In Details</string>
+    <string name="sport_header">Sport</string>
+    <string name="skill_level_header">Skill Level</string>
+    <string name="location_header">Location</string>
+    <string name="time_header">Time</string>
+    <string name="participants_header">Participants</string>
+    <string name="participants">Number of Players</string>
+    <string name="comments_header">Comments</string>
+    <string name="comments">About Drop-in</string>
+    <string name="create_drop_in">Create Drop-in</string>
+    <string name="update_drop_in">Update Drop-in</string>
+    <string name="details">Details</string>
+    <string name="address">Address</string>
+    <string name="apiKey">AIzaSyCY0C8y9pSwZqw8mSwkoUrOQ9dpbbDjBVc</string>
+
+
+    <string-array name="listOfSports">
+        <item>Soccer</item>
+        <item>Basketball</item>
+        <item>Tennis</item>
+        <item>Baseball</item>
+        <item>Golf</item>
+        <item>Volleyball</item>
+        <item>Badminton</item>
+        <item>Football</item>
+        <item>Hockey</item>
+        <item>Rugby</item>
+        <item>Others</item>
+    </string-array>
+
+    <string-array name="listOfLevels">
+        <item>Beginner</item>
+        <item>Intermediate</item>
+        <item>Advanced</item>
+        <item>Elite</item>
+        <item>All</item>
+    </string-array>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save Changes</string>
+
+    <string name="profile_name">Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="sex">Sex</string>
+    <string name="about_me">About Me</string>
+    <string name="age">Age</string>
+    <string name="height">Height</string>
+
+    <string name="change_display_photo">Change display photo</string>
+    <string-array name="change_display_photo_array">
+        <item>Select From Gallery</item>
+    </string-array>
+
+    <string name="sex_male_option">Male</string>
+    <string name="sex_female_option">Female</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="log_out">Log out</string>
+    <string name="teamwork">Teamwork</string>
+    <string name="add">Add</string>
 </resources>

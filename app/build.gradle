@@ -15,6 +15,11 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        manifestPlaceholders = [MAPS_API_KEY: "${properties.getProperty('MAPS_API_KEY')}"]
     }
 
     buildTypes {
@@ -62,6 +67,13 @@ dependencies {
     // Firebase UI
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.1'
     implementation 'com.firebaseui:firebase-ui-storage:7.2.0'
+
+    //Gson
+    implementation 'com.google.code.gson:gson:2.8.9'
+
+    //Maps
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.firebase:firebase-firestore:21.4.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
