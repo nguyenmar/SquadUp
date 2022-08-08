@@ -16,7 +16,13 @@
         <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/activity_auth_signup.xml" value="0.19375" />
         <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/activity_drop_in.xml" value="0.1" />
         <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/activity_edit_drop_in.xml" value="0.16077898550724637" />
+        <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/activity_edit_profile.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/activity_rating.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/fragment_dashboard.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/fragment_home.xml" value="0.18802083333333333" />
         <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/fragment_map.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/fragment_notifications.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/maria/AndroidStudioProjects/SquadUpMaps/app/src/main/res/layout/fragment_profile.xml" value="0.18802083333333333" />
       </map>
     </option>
   </component>
