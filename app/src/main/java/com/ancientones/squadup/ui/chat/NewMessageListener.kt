@@ -11,10 +11,8 @@ class NewMessageListener(
 ): RecyclerView.AdapterDataObserver() {
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
         // todo: new message fab popup, add a scroll position listener in chatactivity
-        println("debugx: listener $positionStart $itemCount")
         if(positionStart > 0) {
             val msg = adapter.getItem(positionStart - 1);
-            println("Debugx: ${msg.message}")
         }
         super.onItemRangeInserted(positionStart, itemCount)
         val count = adapter.itemCount
@@ -24,7 +22,6 @@ class NewMessageListener(
         // of the list to show the newly added message.
         val loading = lastVisiblePosition == -1
         val atBottom = positionStart >= count - 1 && lastVisiblePosition == positionStart - 1
-        println("debugx: scroll conditions: $loading $atBottom")
         if (loading || !atBottom) {
             recycler.scrollToPosition(positionStart)
         }
