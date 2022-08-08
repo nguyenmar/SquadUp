@@ -46,7 +46,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.Math.*
 import java.lang.reflect.Type
+import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.Flow
+import kotlin.collections.ArrayList
 import kotlin.math.pow
 
 
@@ -76,6 +80,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     lateinit var dialogFragment: AlertDialogFragment
 
     private var dialogShown = false
+
+    private lateinit var location: GeoPoint
+
+    private lateinit var locationLatLng: LatLng
+
+    private var date = ""
+
+    private var startTime = ""
+
+    private var endTime = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -201,10 +215,24 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         userDropIns.forEach { it ->
             dropInViewModel.fetchDropIn(it)
 
+            dropInViewModel.date.observe(this) {
+                date = dropInViewModel.date.value!!
+            }
+
+            dropInViewModel.startTime.observe(this) {
+                startTime = dropInViewModel.startTime.value!!
+            }
+
+            dropInViewModel.endTime.observe(this) {
+                endTime = dropInViewModel.endTime.value!!
+            }
+
+            //move back to top?
             dropInViewModel.location.observe(this) {
-                val location = dropInViewModel.location.value!!
-                val locationLatLng = LatLng(location.latitude, location.longitude)
-                if (closeTo(locationLatLng, locationList.last()) && !dialogShown) {
+                location = dropInViewModel.location.value!!
+                locationLatLng = LatLng(location.latitude, location.longitude)
+
+                if (closeTo(locationLatLng, locationList.last()) && correctDate(date, startTime, endTime) && !dialogShown) {
                     //dialog
                     dialogFragment = AlertDialogFragment()
                     dialogFragment.dialogType = "Automatic"
@@ -212,9 +240,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     dialogShown = true
                 }
             }
-        }
 
+        }
     }
+
 
     private fun checkPermission() {
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -251,5 +280,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         return (rad * c <= 1)
     }
+
+    private fun correctDate(date: String, startTime: String, endTime: String): Boolean {
+        var sdf: SimpleDateFormat = SimpleDateFormat("MMMM d, yyyy")
+        var currentDate: String = sdf.format(Date())
+
+        if (currentDate == date) {
+            return true
+        }
+
+        return false
+    }
+
+
 
 }
