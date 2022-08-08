@@ -123,13 +123,11 @@ class EditDropInActivity : AppCompatActivity() {
 
     private fun saveFireStore(){
         val db = FirebaseFirestore.getInstance()
+        db.collection("dropin").document(documentID)
+
         val dropin: MutableMap<String,Any> = HashMap()
         val latlng = getLocationFromAddress(binding.editLocationText.text.toString())
 
-
-        if (latlng != null) {
-            dropin["location"] = GeoPoint(latlng.latitude, latlng.longitude)
-        }
 
         if (binding.editSportSpinner.selectedItem != null) {
             dropin["sport"] = binding.editSportSpinner.selectedItem.toString()
@@ -139,20 +137,43 @@ class EditDropInActivity : AppCompatActivity() {
             dropin["skillLevel"] = binding.editLevelSpinner.selectedItem.toString()
         }
 
-        if (binding.editCommentsText.text != null) {
-            dropin["comments"] = binding.editCommentsText.text.toString()
+        if (latlng != null) {
+            dropin["location"] = GeoPoint(latlng.latitude, latlng.longitude)
+        }
+
+        //Add date
+
+        if (binding.editStartTime.text != null) {
+            dropin["startTime"] = binding.editStartTime.text.toString()
+        }
+
+        if (binding.editEndTime.text != null) {
+            dropin["endTime"] = binding.editEndTime.text.toString()
         }
 
         if (binding.editParticipantsText.text != null) {
             dropin["numParticipants"] = binding.editParticipantsText.text.toString()
         }
 
+        if (binding.editCommentsText.text != null) {
+            dropin["comments"] = binding.editCommentsText.text.toString()
+        }
 
+
+/*
         db.collection("dropin")
             .add(dropin)
             .addOnSuccessListener { Toast.makeText((this), "Drop-in successfully created", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {Toast.makeText((this), "Drop-in failed to be created", Toast.LENGTH_SHORT).show()
+            }
+
+ */
+
+        db.collection("dropin").document(documentID).update(dropin)
+            .addOnSuccessListener { Toast.makeText((this), "Drop-in successfully updated", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { Toast.makeText((this), "Drop-in failed to be updated", Toast.LENGTH_SHORT).show()
             }
 
         finish()
