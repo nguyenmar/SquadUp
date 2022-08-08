@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityAddDropInBinding
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.ktx.auth
@@ -17,6 +16,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
 import java.io.IOException
 import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -175,13 +175,20 @@ class AddDropInActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListene
     }
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+
+        var fmt = SimpleDateFormat("HH:mm")
+        var time = fmt.parse("$hourOfDay:$minute")
+        val fmtOut = SimpleDateFormat("HH:mm")
+        val formattedTime = fmtOut.format(time)
+
         if (isStartTime) {
-            binding.startTime.setText("$hourOfDay:$minute")
-            dialogViewModel.setStartTime("$hourOfDay:$minute")
+
+            binding.startTime.setText(formattedTime)
+            dialogViewModel.setStartTime(formattedTime)
         }
         else {
-            binding.endTime.setText("$hourOfDay:$minute")
-            dialogViewModel.setEndTime("$hourOfDay:$minute")
+            binding.endTime.setText(formattedTime)
+            dialogViewModel.setEndTime(formattedTime)
         }
 
     }

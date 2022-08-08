@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import java.io.IOException
 import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
 import java.util.*
 
 //Need to: only let creator of drop in be able to edit it (this should be done in mapfragment)
@@ -254,13 +255,19 @@ class EditDropInActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListen
     }
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+
+        var fmt = SimpleDateFormat("HH:mm")
+        var time = fmt.parse("$hourOfDay:$minute")
+        val fmtOut = SimpleDateFormat("HH:mm")
+        val formattedTime = fmtOut.format(time)
+
         if (isStartTime) {
-            binding.editStartTime.setText("$hourOfDay:$minute")
-            AddDropInActivity.dialogViewModel.setStartTime("$hourOfDay:$minute")
+            binding.editStartTime.setText(formattedTime)
+            AddDropInActivity.dialogViewModel.setStartTime(formattedTime)
         }
         else {
-            binding.editEndTime.setText("$hourOfDay:$minute")
-            AddDropInActivity.dialogViewModel.setEndTime("$hourOfDay:$minute")
+            binding.editEndTime.setText(formattedTime)
+            AddDropInActivity.dialogViewModel.setEndTime(formattedTime)
         }
 
     }
