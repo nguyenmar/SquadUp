@@ -22,7 +22,7 @@
 
         android:background="@drawable/message_received"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/white"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
