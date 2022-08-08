@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ToggleButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
@@ -48,6 +50,9 @@ import java.lang.Math.*
 import java.lang.reflect.Type
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.Flow
 import kotlin.collections.ArrayList
@@ -69,6 +74,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var fab: FloatingActionButton
 
+    private lateinit var toggleButton: MaterialButtonToggleGroup
+
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var dropInViewModel: DropInViewModel
@@ -83,7 +90,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     var mMarkers: MutableList<Marker> = ArrayList()
 
 
-    private lateinit var location: GeoPoint
+    private lateinit var locationGeo: GeoPoint
 
     private lateinit var locationLatLng: LatLng
 
@@ -92,6 +99,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var startTime = ""
 
     private var endTime = ""
+
+    private var checkedButton = 0
+
+    private var checkedSport = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +119,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         dropInViewModel = ViewModelProvider(this).get(DropInViewModel::class.java)
 
         currentUser = Firebase.auth.currentUser!!.uid
+
 
 
 
@@ -128,6 +140,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fab = rootView.findViewById(R.id.fab)
+
+        toggleButton = rootView.findViewById(R.id.toggleButton)
+        toggleButton.check(R.id.nearbyButton)
+
+        checkedButton = toggleButton.checkedButtonId
 
         fabOnClick()
 
@@ -161,6 +178,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val db = FirebaseFirestore.getInstance()
         var location: LatLng = LatLng(0.0, 0.0)
 
+        checkedButton = toggleButton.checkedButtonId
+
         db.collection("dropin")
             .addSnapshotListener { value, e ->
                 if (e != null) {
@@ -181,6 +200,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                             println("debug: ${it.id}")
                             val documentID = it.id
                             val isCompleted = it.getBoolean("isCompleted")
+                            val sportType = it.getString("sport")
 
                             if (isCompleted == false) {
                                 val geoPoint = it.getGeoPoint("location")
@@ -205,7 +225,26 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                                 }
                             }
 
-                            mMap.addMarker(MarkerOptions().position(location).title(documentID))
+                            //are there 2 markers?
+                            if (checkedButton == R.id.nearbyButton) {
+                                checkedSport = "Nearby"
+                            }
+                            if (checkedButton == R.id.soccerButton) {
+                                checkedSport = "Soccer"
+                            }
+
+                            if (checkedButton == R.id.basketballButton) {
+                                checkedSport = "Basketball"
+                            }
+
+                            if (checkedButton == R.id.hockeyButton) {
+                                checkedSport = "Hockey"
+                            }
+
+
+                            if (sportType == checkedSport || checkedSport == "Nearby") {
+                                mMap.addMarker(MarkerOptions().position(location).title(documentID))
+                            }
 
                         }
                     }
@@ -250,10 +289,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 endTime = dropInViewModel.endTime.value!!
             }
 
-            //move back to top?
             dropInViewModel.location.observe(this) {
-                location = dropInViewModel.location.value!!
-                locationLatLng = LatLng(location.latitude, location.longitude)
+                locationGeo = dropInViewModel.location.value!!
+                locationLatLng = LatLng(locationGeo.latitude, locationGeo.longitude)
+
 
                 if (closeTo(locationLatLng, locationList.last()) && correctDate(date, startTime, endTime) && !dialogShown) {
                     //dialog
@@ -262,6 +301,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     dialogFragment.show(requireActivity().supportFragmentManager, "dialog")
                     dialogShown = true
                 }
+
+
             }
 
         }
@@ -305,11 +346,19 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun correctDate(date: String, startTime: String, endTime: String): Boolean {
-        var sdf: SimpleDateFormat = SimpleDateFormat("MMMM d, yyyy")
+        var sdf = SimpleDateFormat("MMMM d, yyyy")
         var currentDate: String = sdf.format(Date())
 
-        if (currentDate == date) {
-            return true
+        var sdfTime = SimpleDateFormat("H:m")
+        var currentTime: String = sdfTime.format(Date())
+
+        val formatter = DateTimeFormatter.ofPattern("H:m")
+        var currentTimeParsed = LocalTime.parse(currentTime, formatter)
+        var startTimeParsed = LocalTime.parse(startTime, formatter)
+
+        if (currentDate == date && currentTimeParsed.isBefore(startTimeParsed) &&
+            Duration.between(startTimeParsed, currentTimeParsed).toMinutes() <= 30) {
+                return true
         }
 
         return false
