@@ -125,6 +125,7 @@ class AddDropInActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListene
             dropin["date"] = binding.date.text.toString()
             dropin["numParticipants"] = binding.participantsText.text.toString().toInt()
             dropin["members"] = list
+            dropin["isCompleted"] = false
             db.collection("dropin")
                 .add(dropin)
                 .addOnSuccessListener { Toast.makeText((this), "Drop-in successfully created", Toast.LENGTH_SHORT).show()
