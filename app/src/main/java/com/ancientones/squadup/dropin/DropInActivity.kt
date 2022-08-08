@@ -1,9 +1,11 @@
 package com.ancientones.squadup.dropin
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityDropInBinding
+import com.ancientones.squadup.ui.chat.ChatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -76,6 +78,13 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
         //binding.locationDropIn.text = getAddressfromLatLng(location)
         binding.joinButton.setOnClickListener {
             finish()
+        }
+
+        // Open chat button
+        binding.openChatButton.setOnClickListener {
+            val chatIntent = Intent(this, ChatActivity::class.java);
+            chatIntent.putExtra( ChatActivity.CHAT_ID_KEY, documentID );
+            startActivity( chatIntent );
         }
     }
     fun setGeoPoint(geoPoint: GeoPoint){

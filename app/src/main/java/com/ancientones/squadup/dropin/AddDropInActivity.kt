@@ -2,20 +2,26 @@ package com.ancientones.squadup.dropin
 
 import android.location.Geocoder
 import android.os.Bundle
+import android.os.Message
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ancientones.squadup.R
+import com.ancientones.squadup.database.models.Chat
 import com.ancientones.squadup.databinding.ActivityAddDropInBinding
+import com.ancientones.squadup.ui.chat.ChatActivity
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.ktx.Firebase
 import java.io.IOException
 import java.util.*
 
 
 class AddDropInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddDropInBinding
+    private lateinit var name: String;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +35,8 @@ class AddDropInActivity : AppCompatActivity() {
         binding.saveButton.setOnClickListener {
             saveFireStore()
         }
+
+        name = "George"; // todo: update this
 
     }
 
@@ -61,7 +69,13 @@ class AddDropInActivity : AppCompatActivity() {
 
         db.collection("dropin")
             .add(dropin)
-            .addOnSuccessListener { Toast.makeText((this), "Drop-in successfully created", Toast.LENGTH_SHORT).show()
+            .addOnSuccessListener {
+                Toast.makeText((this), "Drop-in successfully created", Toast.LENGTH_SHORT).show()
+
+                // create chat
+                val title = "${name}'s ${dropin["sport"]} drop-in";
+                db.collection( ChatActivity.CHAT_COLLECTION_NAME ).document(it.id)
+                    .set( Chat(it.id, title) );
             }
             .addOnFailureListener {Toast.makeText((this), "Drop-in failed to be created", Toast.LENGTH_SHORT).show()
             }

@@ -22,6 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.ancientones.squadup.BuildConfig
+import com.ancientones.squadup.database.models.Chat
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import java.lang.Exception
@@ -87,18 +89,14 @@ class ChatActivity : AppCompatActivity() {
         storage = Firebase.storage;
 
         // chat setup
-        val id:String = "1";
-        // chats -> *chat room they belong to* ->
-        val query = db.collection(CHAT_COLLECTION_NAME).document(id)
-            .collection(MESSAGE_COLLECTION_NAME).orderBy("timestamp")
-            .limit(50);
+        val chat_id = intent.getStringExtra( CHAT_ID_KEY )!!;
+
         // chat title
-        title = "Bob's B-game \uD83C\uDFC0"
-//        db.collection(CHAT_COLLECTION_NAME).document(id).get().addOnSuccessListener {
-//            val chat: Chat? = it.toObject<Chat>();
-//            println("debugx: chat: ${it.get("messages")}")
-//            title = "testing";
-//        }
+        db.collection(CHAT_COLLECTION_NAME).document( chat_id ).get().addOnSuccessListener {
+                title = it.toObject(Chat::class.java)!!.title;
+            };
+        val query = db.collection( CHAT_COLLECTION_NAME ).document( chat_id )
+            .collection( MESSAGE_COLLECTION_NAME ).orderBy("timestamp").limit(50);
 
         val options = FirestoreRecyclerOptions.Builder<Message>()
             .setQuery(query, Message::class.java)
@@ -126,7 +124,7 @@ class ChatActivity : AppCompatActivity() {
                     "xxxxxxxxx",
                     binding.messageEditBox.text.toString().trim()
                 );
-                db.collection(CHAT_COLLECTION_NAME).document(id)
+                db.collection(CHAT_COLLECTION_NAME).document(chat_id)
                     .collection(MESSAGE_COLLECTION_NAME).add(message).addOnSuccessListener {
 //                        println("DEBUGx: it rwk")
                     }.addOnFailureListener {
@@ -143,7 +141,7 @@ class ChatActivity : AppCompatActivity() {
             val image: Uri = result.data!!.data!!;
 
             // get msg, with a generated id for the image
-            val message = db.collection(CHAT_COLLECTION_NAME).document(id)
+            val message = db.collection(CHAT_COLLECTION_NAME).document(chat_id)
                 .collection(MESSAGE_COLLECTION_NAME).document();
 
             // upload the photo to storage with id of the message and get its url
