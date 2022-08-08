@@ -173,9 +173,10 @@
         </LinearLayout>
 
         <!-- TODO: remove me -->
+
         <Button
-            android:id="@+id/testRateBtn"
-            android:text="rate user testR@gmail.com"
+            android:id="@+id/testRateMembers"
+            android:text="test rate dropins"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
 

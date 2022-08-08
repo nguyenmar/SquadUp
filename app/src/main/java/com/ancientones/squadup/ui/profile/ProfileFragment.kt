@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.AuthActivity
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.FragmentProfileBinding
+import com.ancientones.squadup.dropin.DropInMembersActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -132,10 +133,19 @@ class ProfileFragment : Fragment() {
             userRatingView.rating = profileViewModel.userRating.value!!.toFloat()
         }
 
-        // TODO: remove after implementing prepareRateUser
-        val testBtn = view.findViewById<Button>(R.id.testRateBtn)
+        // TODO: remove after implementing DropInMembersActivity
+        val testBtn = view.findViewById<Button>(R.id.testRateMembers)
         testBtn.setOnClickListener{
-            prepareRateUser()
+            val intent = Intent(requireActivity(), DropInMembersActivity::class.java)
+            val mockList = arrayListOf<String>("0GyqfvkvTpNgAc05dhbPKBDTMZw2", "x2Ukx8ngkOQZVyhkBtvUK1QgAqp2",
+            "uv5yBD7hv5WzQ0kTtfm83IfXCFt1", "9bFEiZwOLmNGYD3qrqsx4ZgdjXP2", "jIBpeZvvdeX9MrLonJiJbKUlC2S2",
+            "Ulz6KTXTOOMfHdaMhNM3K9bd6Zq2", "BjMo3n3oPBhPpYDaQMPYWwjiBY02", "9CcVNt8rSnSjiMM7mE344wsvLCB2")
+
+            // Prepare memberList by removing currentUser
+            mockList.filterTo(arrayListOf()) { it != Firebase.auth.currentUser!!.uid }
+
+            intent.putStringArrayListExtra("memberList", mockList)
+            startActivity(intent)
         }
 
     }
@@ -143,45 +153,5 @@ class ProfileFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    // TODO: implement with drop in team
-    private fun prepareRateUser() {
-        // uid is from user that is going to be rated
-        val userToBeRated = "Ulz6KTXTOOMfHdaMhNM3K9bd6Zq2"
-
-        // prepare intent
-        val intent = Intent(requireActivity(), RateProfileActivity::class.java)
-        intent.putExtra("userID", userToBeRated)
-
-        val dbRef: DatabaseReference = Firebase.database.getReference("Users").child(userToBeRated)
-        dbRef.child("hasRated").get().addOnSuccessListener {
-            var userHasRated = false
-
-            println("hasRated: ${it.value}")
-
-            if(it.value != null) {
-                val hasRated = it.value as List<String>
-
-                // check if currentUser has given "userToBeRated" a rating already
-                hasRated.forEach{ uid ->
-                    if(uid == Firebase.auth.currentUser!!.uid){
-                        userHasRated = true
-                    }
-                }
-
-                if (!userHasRated) {
-                    startActivity(intent)
-                }
-                else {
-                    println("DEBUG: ${Firebase.auth.currentUser!!.uid} has already rated $userToBeRated")
-                }
-            }
-            // user has not been rated, i.e hasRated array does not exist in User db entry
-            // and it will be created after first rating has been added
-            else {
-                startActivity(intent)
-            }
-        }
     }
 }
