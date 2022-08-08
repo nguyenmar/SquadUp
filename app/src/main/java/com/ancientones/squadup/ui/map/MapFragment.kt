@@ -145,7 +145,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
         val db = FirebaseFirestore.getInstance()
-        var location: LatLng = LatLng(0.0,0.0)
+        var location: LatLng = LatLng(0.0, 0.0)
 
         db.collection("dropin")
             .addSnapshotListener { value, e ->
@@ -153,56 +153,58 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     Log.w(TAG, "Listen failed.", e)
                     return@addSnapshotListener
                 }
-                if(value != null){
+                if (value != null) {
                     println("debug: database changed")
                     val documents = value.documents
-                    documents.forEach{ it ->
+                    documents.forEach { it ->
                         val membersList = it.get("members") as MutableList<String>
-                    for(marker: Marker in mMarkers)
-                    {
-                        marker.remove()
-                    }
-                    mMarkers.clear()
-
-                    documents.forEach{
-                        println("debug: ${it.id}")
-                        val documentID = it.id
-                        val isCompleted = it.getBoolean("isCompleted")
-
-                        if (isCompleted == false) {
-                            val geoPoint = it.getGeoPoint("location")
-                            println(documentID)
-                            println(geoPoint)
-                            if (geoPoint != null) {
-                                location = LatLng(geoPoint.latitude, geoPoint.longitude)
-                            }
-                            var marker = mMap.addMarker(MarkerOptions().position(location).title(documentID))
-
-                            if (marker != null) {
-                                mMarkers.add(marker)
-                            }
+                        for (marker: Marker in mMarkers) {
+                            marker.remove()
                         }
+                        mMarkers.clear()
 
-                        membersList.forEach { it ->
-                            if (it == Firebase.auth.currentUser!!.uid) {
-                                //save location and drop in info
-                                userDropIns.add(documentID)
+                        documents.forEach {
+                            println("debug: ${it.id}")
+                            val documentID = it.id
+                            val isCompleted = it.getBoolean("isCompleted")
+
+                            if (isCompleted == false) {
+                                val geoPoint = it.getGeoPoint("location")
+                                println(documentID)
+                                println(geoPoint)
+                                if (geoPoint != null) {
+                                    location = LatLng(geoPoint.latitude, geoPoint.longitude)
+                                }
+                                var marker = mMap.addMarker(
+                                    MarkerOptions().position(location).title(documentID)
+                                )
+
+                                if (marker != null) {
+                                    mMarkers.add(marker)
+                                }
                             }
+
+                            membersList.forEach { it ->
+                                if (it == Firebase.auth.currentUser!!.uid) {
+                                    //save location and drop in info
+                                    userDropIns.add(documentID)
+                                }
+                            }
+
+                            mMap.addMarker(MarkerOptions().position(location).title(documentID))
+
                         }
-
-                        mMap.addMarker(MarkerOptions().position(location).title(documentID))
-
                     }
                 }
+
+                mMap.setOnMarkerClickListener { marker ->
+                    val intent = Intent(context, DropInActivity::class.java)
+                    intent.putExtra("documentID", marker.title)
+                    startActivity(intent)
+                    true
+                }
+
             }
-
-        mMap.setOnMarkerClickListener { marker ->
-            val intent = Intent(context, DropInActivity::class.java)
-            intent.putExtra("documentID", marker.title)
-            startActivity(intent)
-            true
-        }
-
     }
 
     private fun updateMap(bundle: Bundle) {
