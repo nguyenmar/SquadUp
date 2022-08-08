@@ -1,12 +1,18 @@
 package com.ancientones.squadup.ui.chat
 
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.MenuItem
 import androidx.activity.addCallback
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ancientones.squadup.database.models.Message
 import com.ancientones.squadup.databinding.ActivityChatBinding
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
@@ -16,7 +22,10 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.ancientones.squadup.BuildConfig
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import java.lang.Exception
+import java.util.*
 
 class ChatActivity : AppCompatActivity() {
     companion object {
@@ -26,18 +35,18 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityChatBinding;
-    private lateinit var viewModel: ChatViewModel;
+    private lateinit var imageResult: ActivityResultLauncher<Intent>;
     private val MSG_KEY = "msg_key";
-
+    
     // Firebase
     private lateinit var db: FirebaseFirestore;
+    private lateinit var storage: FirebaseStorage;
     private lateinit var auth: FirebaseAuth;
     private lateinit var manager: LinearLayoutManager;
     private lateinit var messageAdapter: MessageAdapter;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ChatViewModel::class.java);
 
         binding = ActivityChatBinding.inflate(layoutInflater);
         setContentView(binding.root);
@@ -74,9 +83,13 @@ class ChatActivity : AppCompatActivity() {
                 val settings = FirebaseFirestoreSettings.Builder()
                     .setPersistenceEnabled(false).build();
                 Firebase.firestore.firestoreSettings = settings;
+
+                // todo: setup storage firebase emulator
+                Firebase.storage.useEmulator("10.0.2.2", 9099);
             } catch (e: Exception){}
         }
         db = Firebase.firestore;
+        storage = Firebase.storage;
 
         // chat setup
         val id:String = "1";
@@ -103,24 +116,66 @@ class ChatActivity : AppCompatActivity() {
 
         binding.chatRecyclerView.layoutManager = manager;
         binding.chatRecyclerView.adapter = messageAdapter;
+
+        messageAdapter.registerAdapterDataObserver(
+            NewMessageListener(binding.chatRecyclerView, messageAdapter, manager)
+        );
+
         messageAdapter.startListening();
 
         binding.sendButton.setOnClickListener {
             if( binding.messageEditBox.text.isNotEmpty() ) {
                 val message = Message(
+                    "",
                     "titanvj",
                     "xxxxxxxxx",
                     binding.messageEditBox.text.toString().trim()
                 );
                 db.collection(CHAT_COLLECTION_NAME).document(id)
                     .collection(MESSAGE_COLLECTION_NAME).add(message).addOnSuccessListener {
-                        println("DEBUGx: it rwk")
+//                        println("DEBUGx: it rwk")
                     }.addOnFailureListener {
-                        println("DEBUGx fail")
+//                        println("DEBUGx fail")
                     };
                 binding.messageEditBox.text.clear();
             }
         };
+
+        // image stuff
+
+        // set result handler
+        imageResult = registerForActivityResult( ActivityResultContracts.StartActivityForResult() ) {
+            result: ActivityResult ->
+            val image: Uri = result.data!!.data!!;
+
+            // get msg, with a generated id for the image
+            val message = db.collection(CHAT_COLLECTION_NAME).document(id)
+                .collection(MESSAGE_COLLECTION_NAME).document();
+
+            // upload the photo to storage with id of the message and get its url
+            val imageRef = storage.reference.child("images/${message.id}");
+            imageRef.putFile(image).addOnSuccessListener {
+                it.metadata!!.reference!!.downloadUrl.addOnSuccessListener { downloadUri ->
+                    val msg = Message(
+                        "",
+                        "titanvj",
+                        "xxxx",
+                        null, // leave msg null
+                        downloadUri.toString()
+                    );
+                    message.set(msg);
+                }
+            }
+        }
+
+        binding.sendImageBtn.setOnClickListener {
+            // lauch activity for result to get an image
+            val intent = Intent(Intent.ACTION_PICK);
+            intent.type = "image/*";
+            intent.action = Intent.ACTION_GET_CONTENT;
+            imageResult.launch(intent);
+        }
+
         onBackPressedDispatcher.addCallback(this) {
             messageAdapter.stopListening();
             finish();
