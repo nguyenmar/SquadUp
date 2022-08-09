@@ -43,7 +43,6 @@
                 android:gravity="center"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="test"
                 android:textSize="18dp"
                 android:layout_marginBottom="5dp"/>
 
@@ -57,9 +56,7 @@
                 android:stepSize="0.5"
                 android:scaleX="0.5"
                 android:scaleY="0.5" />
-
             </LinearLayout>
-
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -78,7 +75,6 @@
                         android:layout_width="wrap_content"
                         android:layout_gravity="center_horizontal" />
                     <TextView
-                        android:text="24"
                         android:id="@+id/userAge"
                         android:textStyle="bold"
                         android:textSize="15dp"
@@ -107,7 +103,6 @@
                         android:layout_width="wrap_content"
                         android:layout_gravity="center_horizontal" />
                     <TextView
-                        android:text="173 cm"
                         android:textStyle="bold"
                         android:textSize="15dp"
                         android:id="@+id/userHeight"
@@ -136,7 +131,6 @@
                         android:layout_width="wrap_content"
                         android:layout_gravity="center_horizontal" />
                     <TextView
-                        android:text="Female"
                         android:textStyle="bold"
                         android:textSize="15dp"
                         android:id="@+id/userSex"
@@ -161,7 +155,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="About"
+                android:text="@string/about_me"
                 android:textSize="18dp"
                 android:textStyle="bold" />
 
