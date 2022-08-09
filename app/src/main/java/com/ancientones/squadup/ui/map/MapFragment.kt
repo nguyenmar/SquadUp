@@ -291,15 +291,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 locationLatLng = LatLng(locationGeo.latitude, locationGeo.longitude)
             }
 
-            //need to move
-            if (closeTo(locationLatLng, locationList.last()) && correctDate(date, startTime, endTime) && !dialogShown) {
-                //dialog
-                dialogFragment = AlertDialogFragment()
-                dialogFragment.dialogType = "Automatic"
-                dialogFragment.show(requireActivity().supportFragmentManager, "dialog")
-                dialogShown = true
-            }
+            if (locationLatLng != null && locationList.last() != null){
+                println("debug: checking auto check in")
+                //println("debug: ${closeTo(locationLatLng, locationList.last())}")
+                //println("debug: ${correctDate(date, startTime, endTime)}")
 
+                if (closeTo(locationLatLng, locationList.last()) && !dialogShown) {
+                    //dialog
+
+                    dialogFragment = AlertDialogFragment()
+                    dialogFragment.dialogType = "Automatic"
+                    dialogFragment.show(requireActivity().supportFragmentManager, "dialog")
+                    dialogShown = true
+                }
+            }
         }
     }
 
