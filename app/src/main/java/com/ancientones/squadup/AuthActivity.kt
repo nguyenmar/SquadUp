@@ -1,11 +1,15 @@
 package com.ancientones.squadup
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.ancientones.squadup.auth.AuthSignInActivity
 import com.ancientones.squadup.auth.AuthSignUpActivity
 import com.ancientones.squadup.databinding.ActivityAuthBinding
@@ -44,6 +48,8 @@ class AuthActivity : AppCompatActivity() {
             it.isLooping = true
         }
 
+        checkMapPermissions()
+
 
     }
 
@@ -60,6 +66,11 @@ class AuthActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         videoView.start()
+    }
+
+    private fun checkMapPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 0)
     }
 
 }
