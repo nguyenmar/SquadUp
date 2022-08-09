@@ -137,12 +137,12 @@ class ProfileFragment : Fragment() {
 
         profileImgViewModel.userImage.observe(requireActivity()) {
             setUserImage()
+        }
 
         profileImgViewModel.hasImage.observe(requireActivity()) {
             setUserImage()
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
