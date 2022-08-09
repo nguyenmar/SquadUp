@@ -14,6 +14,7 @@ import com.ancientones.squadup.MainActivity
 import com.ancientones.squadup.R
 import com.ancientones.squadup.User
 import com.ancientones.squadup.databinding.ActivityAuthSignupBinding
+import com.ancientones.squadup.ui.profile.SetUpProfileActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
@@ -55,7 +56,7 @@ class AuthSignUpActivity : AppCompatActivity() {
         val fName = firstNameEditText.text.toString().trim()
         val lName = lastNameEditText.text.toString().trim()
         val pword = passwordEditText.text.toString().trim()
-        val pwordConfirm = confirmPasswordEditText.toString().trim()
+        val pwordConfirm = confirmPasswordEditText.text.toString().trim()
 
         if(validateEmail(email) == -1) {
             return
@@ -78,10 +79,7 @@ class AuthSignUpActivity : AppCompatActivity() {
                                     if (task.isSuccessful) {
                                         Toast.makeText(this, "User successfully registered!", Toast.LENGTH_SHORT).show()
                                         progressBar.visibility = View.VISIBLE
-                                        val userAuth = mAuth.currentUser
-                                        val intent = Intent(this, MainActivity::class.java).apply {
-                                            putExtra("user", userAuth)
-                                        }
+                                        val intent = Intent(this, SetUpProfileActivity::class.java)
                                         startActivity(intent)
                                     } else {
                                         Toast.makeText(this, "User failed to register.", Toast.LENGTH_SHORT).show()
@@ -137,7 +135,7 @@ class AuthSignUpActivity : AppCompatActivity() {
             passwordEditText.setError("Please input a password 6 characters or longer.")
         }
 
-        if(pword.equals(pwordConfirm)) {
+        if(!pword.equals(pwordConfirm)) {
             confirmPasswordEditText.requestFocus()
             confirmPasswordEditText.setError("Your passwords do not match!")
             return -1
