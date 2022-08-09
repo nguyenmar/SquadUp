@@ -27,6 +27,7 @@ class RateProfileActivity : AppCompatActivity() {
 //    private lateinit var storageReference: StorageReference
 
     private lateinit var addBtn: Button
+    private lateinit var cancelBtn: Button
     private lateinit var description: TextView
     private lateinit var ratingBar: RatingBar
     private lateinit var dbRef: DatabaseReference
@@ -46,6 +47,7 @@ class RateProfileActivity : AppCompatActivity() {
         dbRef = Firebase.database.getReference("Users").child(userID)
 
         addBtn = findViewById(R.id.addBtn)
+        cancelBtn = findViewById(R.id.cancelBtn)
         description = findViewById(R.id.description)
         ratingBar = findViewById(R.id.teamworkRating)
 
@@ -57,8 +59,11 @@ class RateProfileActivity : AppCompatActivity() {
                 Toast.makeText(baseContext, "Please set a rating.", Toast.LENGTH_SHORT).show()
             }
         }
+        
+        cancelBtn.setOnClickListener{
+            finish()
+        }
 
-        // TODO: change this to an intent "firstName"
         dbRef.child("firstName").get().addOnSuccessListener{
             description.text = "Rate your experience playing with ${it.value.toString()}"
         }

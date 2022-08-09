@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.AuthActivity
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.FragmentProfileBinding
+import com.ancientones.squadup.dropin.DropInMembersActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -136,7 +137,6 @@ class ProfileFragment : Fragment() {
 
         profileImgViewModel.userImage.observe(requireActivity()) {
             setUserImage()
-        }
 
         profileImgViewModel.hasImage.observe(requireActivity()) {
             setUserImage()

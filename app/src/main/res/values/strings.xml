@@ -4,6 +4,7 @@
     <string name="title_drop_ins">Drop-ins</string>
     <string name="title_profile">Profile</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_history">History</string>
 
     <string name="squad_up_header">SquadUp</string>
     <string name="squad_up_descriptions">A drop-in sports application designed to help users find locally organized sports drop-ins and make new friends.</string>
@@ -59,6 +60,9 @@
         <item>Elite</item>
         <item>All</item>
     </string-array>
+
+    <!--  Profile/Auth Strings  -->
+
     <string name="edit_profile">Edit Profile</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save Changes</string>
