@@ -1,58 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="8dp">
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="5dp"
-        android:id="@+id/display_picture" />
-    <TextView
-        android:id="@+id/description"
-        android:text="Rate your experience playing with "
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:text="@string/teamwork"
-        android:textStyle="bold"
-        android:layout_marginTop="64dp"
-        android:layout_marginStart="8dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <RatingBar
-        android:id="@+id/teamworkRating"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:numStars="5"
-        android:stepSize="0.5"/>
-
+    android:layout_height="match_parent">
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-        <Button
-            android:id="@+id/addBtn"
-            android:backgroundTint="@color/design_default_color_primary"
-            android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp">
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:id="@+id/display_picture" />
+        <TextView
+            android:id="@+id/description"
+            android:text="Rate your experience playing with "
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="@string/teamwork"
+            android:textStyle="bold"
+            android:layout_marginTop="64dp"
+            android:layout_marginStart="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <RatingBar
+            android:id="@+id/teamworkRating"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginHorizontal="8dp"
-            android:text="@string/add" />
+            android:numStars="5"
+            android:stepSize="0.5"/>
 
-        <Button
-            android:id="@+id/cancelBtn"
-            android:backgroundTint="@color/design_default_color_error"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_gravity="bottom"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginHorizontal="8dp"
-            android:text="@string/cancel" />
+            android:paddingBottom="50dp">
+            <Button
+                android:id="@+id/addBtn"
+                android:backgroundTint="@color/design_default_color_primary"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginHorizontal="8dp"
+                android:text="@string/add" />
+
+            <Button
+                android:id="@+id/cancelBtn"
+                android:backgroundTint="@color/design_default_color_error"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginHorizontal="8dp"
+                android:text="@string/cancel" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

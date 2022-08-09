@@ -27,4 +27,15 @@ class ProfileImgViewModel : ViewModel() {
             hasImage.value = false
         }
     }
+
+    fun fetchExternalUserImage(uid: String) {
+        val imageRef = Firebase.storage.reference.child("images/$uid")
+        imageRef.getBytes(1024 * 1024).addOnSuccessListener {
+            userImage.value = BitmapFactory.decodeByteArray(it, 0, it.size)
+            hasImage.value = true
+        }.addOnFailureListener {
+            println("DEBUG: User does not currently have a set display photo.")
+            hasImage.value = false
+        }
+    }
 }
