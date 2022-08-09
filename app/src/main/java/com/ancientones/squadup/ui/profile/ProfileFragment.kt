@@ -141,58 +141,12 @@ class ProfileFragment : Fragment() {
         profileImgViewModel.hasImage.observe(requireActivity()) {
             setUserImage()
         }
-
-        // TODO: remove after implementing prepareRateUser
-        val testBtn = view.findViewById<Button>(R.id.testRateBtn)
-        testBtn.setOnClickListener{
-            prepareRateUser()
-        }
     }
 
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    // TODO: implement with drop in team
-    private fun prepareRateUser() {
-        // uid is from user that is going to be rated
-        val userToBeRated = "Ulz6KTXTOOMfHdaMhNM3K9bd6Zq2"
-
-        // prepare intent
-        val intent = Intent(requireActivity(), RateProfileActivity::class.java)
-        intent.putExtra("userID", userToBeRated)
-
-        val dbRef: DatabaseReference = Firebase.database.getReference("Users").child(userToBeRated)
-        dbRef.child("hasRated").get().addOnSuccessListener {
-            var userHasRated = false
-
-            println("hasRated: ${it.value}")
-
-            if(it.value != null) {
-                val hasRated = it.value as List<String>
-
-                // check if currentUser has given "userToBeRated" a rating already
-                hasRated.forEach{ uid ->
-                    if(uid == Firebase.auth.currentUser!!.uid){
-                        userHasRated = true
-                    }
-                }
-
-                if (!userHasRated) {
-                    startActivity(intent)
-                }
-                else {
-                    println("DEBUG: ${Firebase.auth.currentUser!!.uid} has already rated $userToBeRated")
-                }
-            }
-            // user has not been rated, i.e hasRated array does not exist in User db entry
-            // and it will be created after first rating has been added
-            else {
-                startActivity(intent)
-            }
-        }
     }
 
     private fun setUserImage() {
