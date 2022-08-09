@@ -10,16 +10,19 @@
     <TextView
         android:id="@+id/chat_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
 
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:paddingStart="10dp"
+        android:gravity="center_vertical"
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
 
-        android:textAppearance="?android:textAppearanceListItem"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textStyle="bold"
+        android:outlineAmbientShadowColor="@color/purple_700"
         tools:text="Paris's Basketball Game Chat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
