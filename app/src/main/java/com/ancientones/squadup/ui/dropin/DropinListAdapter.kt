@@ -1,25 +1,15 @@
 package com.ancientones.squadup.ui.dropin
 
-import android.content.ContentValues
-import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.ancientones.squadup.R
-import com.ancientones.squadup.databinding.FragmentHistoryBinding
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.BaseAdapter
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
-import com.ancientones.squadup.dropin.DropInActivity
 import com.ancientones.squadup.dropin.DropInMembersActivity
-import com.ancientones.squadup.dropin.DropInViewModel
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -42,9 +32,10 @@ class DropinListAdapter(private val context: Context, private var documentsList:
     override fun getView(position: Int, view: View?, parent: ViewGroup?): View? {
         val view = View.inflate(context, R.layout.adapter_dropin, null)
         val dropInTitle = view.findViewById<TextView>(R.id.titleText)
+        val dropInDate = view.findViewById<TextView>(R.id.timeText)
         var members: ArrayList<String> = ArrayList()
 
-        println("debug: doclist: $documentsList")
+//        println("debug: doclist: $documentsList")
 
         val db = FirebaseFirestore.getInstance()
 
@@ -53,8 +44,10 @@ class DropinListAdapter(private val context: Context, private var documentsList:
                 .addOnSuccessListener { document ->
                     if (document != null) {
                         println("DocumentSnapshot data: ${document.data}")
-                        dropInTitle.text = "${document.get("date").toString()} ${document.get("sport").toString()} Drop-in"
+                        dropInTitle.text = "${document.get("sport").toString()} Drop-in"
+                        dropInDate.text = "${document.get("date").toString()}"
                         members = document.get("members") as ArrayList<String>
+                        members.remove(Firebase.auth.currentUser!!.uid)
                     } else {
                         println("No document")
                     }
@@ -64,17 +57,9 @@ class DropinListAdapter(private val context: Context, private var documentsList:
                 }
 
         view.setOnClickListener{
-
             val intent = Intent(context, DropInMembersActivity::class.java)
-
-            if (members.contains(Firebase.auth.currentUser!!.uid)) {
-                members.remove(Firebase.auth.currentUser!!.uid)
-                intent.putStringArrayListExtra("memberList", members)
-                context.startActivity(intent)
-            }
-            else{
-                Toast.makeText(context, "You were not apart of this drop-in", Toast.LENGTH_SHORT).show()
-            }
+            intent.putStringArrayListExtra("memberList", members)
+            context.startActivity(intent)
         }
         return view
     }

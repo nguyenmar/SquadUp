@@ -41,8 +41,6 @@ class HistoryFragment : Fragment() {
         val root: View = binding.root
         historyViewModel.getCompletedDropins()
         historyViewModel.documentList.observe(viewLifecycleOwner) {
-            println("change in documents id list")
-            println(it)
             dropinListAdapter = DropinListAdapter(requireActivity(), it)
             binding.listView.adapter = dropinListAdapter
         }
