@@ -4,9 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import java.util.HashMap
 
 class ProfileViewModel : ViewModel() {
@@ -69,15 +70,12 @@ class ProfileViewModel : ViewModel() {
             return _userDropIn
         }
 
-    fun fetchUser() {
-        val userId = Firebase.auth.currentUser!!.uid
-
-        Firebase.database.getReference("Users")
-            .child(userId)
-            .get()
-            .addOnSuccessListener {
-                Log.i("firebase", "got user: ${it.value}")
-                val userMap: HashMap<String, String> = it.value as HashMap<String, String>
+    fun fetchUser(userReference: DatabaseReference) {
+        val userListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val user = dataSnapshot.value
+                Log.i("firebase", "got user: $user")
+                val userMap: HashMap<String, String> = user as HashMap<String, String>
 
                 _firstName.value = userMap["firstName"]
                 _lastName.value = userMap["lastName"]
@@ -87,25 +85,19 @@ class ProfileViewModel : ViewModel() {
                 _userPhone.value = userMap["userPhone"]
                 _userDescription.value = userMap["userDescription"]
 
-                calculateRating()
-            }
-            .addOnFailureListener{
-                Log.e("firebase", "error getting data", it)
-            }
-    }
-
-    private fun calculateRating() {
-        var ratings: List<Double>
-        Firebase.database.getReference("Users").child(Firebase.auth.currentUser!!.uid).child("teamworkRatings")
-            .get()
-            .addOnSuccessListener {
-                if(it.value != null) {
-                    ratings = it.value as List<Double>
+                if (userMap["teamworkRatings"] != null) {
+                    var ratings: List<Double> = userMap["teamworkRatings"] as List<Double>
                     _userRating.value = ratings.average()
                 }
                 else {
                     _userRating.value = 0.0
                 }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                println("user fetch error: ${error.message}")
+            }
+        }
+        userReference.addValueEventListener(userListener)
     }
 }

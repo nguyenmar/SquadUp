@@ -53,6 +53,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.1'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.github.bumptech.glide:glide:4.13.2'
 
     // Firebase
@@ -74,6 +75,9 @@ dependencies {
     //Maps
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.firebase:firebase-firestore:24.2.2'
+
+    //Circular ImageView
+    implementation 'de.hdodenhof:circleimageview:1.2.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

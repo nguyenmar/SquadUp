@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 
@@ -47,26 +48,35 @@ class ChatListFragment : Fragment() {
 
 
         // todo: get list of dropins for  user for the list values
-        val query = db.collection( ChatActivity.CHAT_COLLECTION_NAME )
+        val query = db.collection( "dropin" )
             .whereArrayContains("members", userId);
 
         val chatsList: ArrayList<Chat> = arrayListOf();
         chatAdapter = ChatListAdapter( requireContext(), chatsList );
 
         // update lists of chats
-        query.addSnapshotListener { chats, error ->
-            println("debugx: listener activated")
-            if( error != null ){
-                println("debugx: chat lisener error: $error");
+        query.addSnapshotListener { dropins, error ->
+            if( error != null || dropins?.documents?.isEmpty() ?: true){
+                binding.chatList.visibility = View.INVISIBLE;
+                binding.chatListEmpty.visibility = View.VISIBLE;
                 return@addSnapshotListener;
             }
+
             val newChats = ArrayList<Chat>();
-            for( chat in chats!! ){
-                newChats.add( chat.toObject(Chat::class.java) );
+            val dropIds = arrayListOf<String>();
+
+            for( dropin in dropins!! ){
+                dropIds.add( dropin.id );
             }
 
-            chatAdapter.replace( newChats );
-            chatAdapter.notifyDataSetChanged();
+            db.collection( ChatActivity.CHAT_COLLECTION_NAME )
+                .whereIn("dropIn_id", dropIds ).get().addOnSuccessListener {
+                    for( chat in it.documents ){
+                        newChats.add( chat.toObject(Chat::class.java)!! );
+                    }
+                    chatAdapter.replace( newChats );
+                    chatAdapter.notifyDataSetChanged();
+            };
         };
 
         binding.chatList.adapter = chatAdapter;
@@ -74,7 +84,6 @@ class ChatListFragment : Fragment() {
             val chat = chatAdapter.getItem(position);
             val intent = Intent(requireActivity(), ChatActivity::class.java);
             intent.putExtra(ChatActivity.CHAT_ID_KEY, chat!!.dropIn_id);
-            println("debugx: Launching chat")
             requireActivity().startActivity(intent);
         }
 

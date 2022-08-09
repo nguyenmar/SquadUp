@@ -34,6 +34,9 @@
             android:name=".dropin.DropInActivity"
             android:exported="false" />
         <activity
+            android:name=".dropin.DropInMembersActivity"
+            android:exported="false" />
+        <activity
             android:name=".AuthActivity"
             android:exported="true"
             android:theme="@style/Theme.Design.NoActionBar">
@@ -58,6 +61,7 @@
         <activity android:name=".ui.profile.EditProfileActivity"
             android:label="@string/edit_profile"/>
         <activity android:name=".ui.profile.RateProfileActivity"/>
+        <activity android:name=".ui.profile.SetUpProfileActivity" />
     </application>
 
 </manifest>

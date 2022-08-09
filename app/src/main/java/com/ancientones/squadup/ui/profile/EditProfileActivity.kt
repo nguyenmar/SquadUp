@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
@@ -18,6 +17,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -37,31 +37,35 @@ class EditProfileActivity : AppCompatActivity() {
     lateinit var sexRadioGroup: RadioGroup
     lateinit var sexRadioButtonMale: RadioButton
     lateinit var sexRadioButtonFemale: RadioButton
-    lateinit var imageUri: Uri
+//    lateinit var imageUri: Uri
     lateinit var firebaseStorage: FirebaseStorage
     lateinit var storageReference: StorageReference
-    var newPhotoFlag: Int = -1
+    lateinit var progressBar: ProgressBar
+    lateinit var profileImgViewModel: ProfileImgViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        checkPermissions(this)
-
         firebaseStorage = Firebase.storage
         storageReference = firebaseStorage.reference
         userID = intent.getStringExtra("userID").toString()
+        profileImgViewModel = ViewModelProvider(this).get(ProfileImgViewModel::class.java)
         imageView = findViewById(R.id.display_picture)
 
         val imageRef = storageReference.child("images/${userID}")
-        imageRef.getBytes(1024 * 1024).addOnSuccessListener {
-            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-            imageView.setImageBitmap(bitmap)
-        }.addOnFailureListener() {
-            println("DEBUG: User does not currently have a set display photo.")
-            imageView.setImageResource(R.drawable.temporary_display_photo)
+//        imageUri = Uri.parse("android.resource://com.ancientones.squadup/drawable/temporary_display_photo")
+
+        if(profileImgViewModel.hasImage.value == false && profileImgViewModel.newImage.value == false) {
+            imageRef.getBytes(1024 * 1024).addOnSuccessListener {
+                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                profileImgViewModel.hasImage.value = true
+                profileImgViewModel.userImage.value = bitmap
+            }.addOnFailureListener() {
+                println("DEBUG: User does not currently have a set display photo.")
+                //            imageView.setImageResource(R.drawable.temporary_display_photo)
+            }
         }
-        imageUri = Uri.parse("android.resource://com.ancientones.squadup/drawable/temporary_display_photo")
 
         fNameEditText = findViewById(R.id.edit_profile_fname)
         lNameEditText = findViewById(R.id.edit_profile_lname)
@@ -72,6 +76,7 @@ class EditProfileActivity : AppCompatActivity() {
         sexRadioGroup = findViewById(R.id.radio_group)
         sexRadioButtonMale = findViewById(R.id.radio_male)
         sexRadioButtonFemale = findViewById(R.id.radio_female)
+        progressBar = findViewById(R.id.progressBar)
 
         val fName = intent.getStringExtra("firstName")
         val lName = intent.getStringExtra("lastName")
@@ -94,6 +99,22 @@ class EditProfileActivity : AppCompatActivity() {
 
     }
 
+    override fun onResume(){
+        super.onResume()
+
+        profileImgViewModel.userImage.observe(this) {
+            if(profileImgViewModel.hasImage.value == true) {
+                imageView.setImageBitmap(profileImgViewModel.userImage.value)
+            }
+        }
+
+        profileImgViewModel.imgUri.observe(this) {
+            if (profileImgViewModel.newImage.value == true) {
+                imageView.setImageURI(profileImgViewModel.imgUri.value)
+            }
+        }
+    }
+
     @Override
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.save_profile_menu, menu)
@@ -101,7 +122,6 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     fun saveProfile(item: MenuItem) {
-        // TODO: Save new info to database
         val db = Firebase.database.getReference("Users").child(userID)
         db.child("firstName").setValue("${fNameEditText.text}")
         db.child("lastName").setValue("${lNameEditText.text}")
@@ -112,11 +132,25 @@ class EditProfileActivity : AppCompatActivity() {
         db.child("userHeight").setValue(heightEditText.text.toString().toInt())
         db.child("userPhone").setValue("${phoneNumberEditText.text}")
         db.child("userDescription").setValue("${userDescriptionEditText.text}")
-        if (newPhotoFlag == 0) {
-            uploadPicture()
-        }
 
-        finish()
+        // Wait until the photo is uploaded before informing ProfileFragment that it has been saved
+        if (profileImgViewModel.newImage.value == true) {
+            val displayPhotoRef = storageReference.child("images/${userID}")
+            progressBar.visibility = View.VISIBLE
+            // TODO: disable fields + save button + lock orientation or put this on separate thread
+            displayPhotoRef.putFile(profileImgViewModel.imgUri.value!!)
+                .addOnSuccessListener {
+                    setResult(RESULT_OK)
+                    finish()
+                }
+                .addOnFailureListener {
+                    progressBar.visibility = View.GONE
+                    println("Error uploading image: $it")
+                }
+        }
+        else{
+            finish()
+        }
     }
 
     fun displayPictureOnClick(view: View){
@@ -132,33 +166,12 @@ class EditProfileActivity : AppCompatActivity() {
         builder.show()
     }
 
-    fun checkPermissions(activity: Activity?) {
-        if (Build.VERSION.SDK_INT < 23) return
-        if (ContextCompat.checkSelfPermission(
-                activity!!,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
-                0
-            )
-        }
-    }
-
     private val galleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if(it.resultCode == Activity.RESULT_OK) {
-            imageUri = it.data?.data!!
-            imageView.setImageURI(imageUri)
-            newPhotoFlag = 0
+            val imageUri = it.data?.data!!
+            profileImgViewModel.imgUri.value = imageUri
+            profileImgViewModel.newImage.value = true
         }
     }
 
-    fun uploadPicture() {
-        val displayPhotoRef = storageReference.child("images/${userID}")
-        displayPhotoRef.putFile(imageUri)
-        }
-    }
+}

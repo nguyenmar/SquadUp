@@ -19,6 +19,7 @@ class RateProfileActivity : AppCompatActivity() {
 
     private lateinit var imageView: ImageView
     private lateinit var userID: String // user being rated, passed in through an intent
+//    private lateinit var firstName: String
 
     private var hasModifiedRating: Boolean = false
 
@@ -26,6 +27,7 @@ class RateProfileActivity : AppCompatActivity() {
 //    private lateinit var storageReference: StorageReference
 
     private lateinit var addBtn: Button
+    private lateinit var cancelBtn: Button
     private lateinit var description: TextView
     private lateinit var ratingBar: RatingBar
     private lateinit var dbRef: DatabaseReference
@@ -41,9 +43,11 @@ class RateProfileActivity : AppCompatActivity() {
 //        imageView = findViewById(R.id.display_picture)
 
         userID = intent.getStringExtra("userID").toString()
+//        firstName = intent.getStringExtra("firstName").toString()
         dbRef = Firebase.database.getReference("Users").child(userID)
 
         addBtn = findViewById(R.id.addBtn)
+        cancelBtn = findViewById(R.id.cancelBtn)
         description = findViewById(R.id.description)
         ratingBar = findViewById(R.id.teamworkRating)
 
@@ -54,6 +58,10 @@ class RateProfileActivity : AppCompatActivity() {
             else{
                 Toast.makeText(baseContext, "Please set a rating.", Toast.LENGTH_SHORT).show()
             }
+        }
+        
+        cancelBtn.setOnClickListener{
+            finish()
         }
 
         dbRef.child("firstName").get().addOnSuccessListener{

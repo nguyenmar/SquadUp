@@ -28,7 +28,6 @@ class ChatListAdapter(private val ctx: Context, private var chatsList: List<Chat
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        println("debugx: getView")
         val view: View = View.inflate( ctx, R.layout.chat_list_item, null );
 
         val name: TextView = view.findViewById( R.id.chat_name );
