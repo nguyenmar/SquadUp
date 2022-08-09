@@ -59,6 +59,7 @@
         <activity android:name=".ui.profile.EditProfileActivity"
             android:label="@string/edit_profile"/>
         <activity android:name=".ui.profile.RateProfileActivity"/>
+        <activity android:name=".ui.profile.SetUpProfileActivity" />
     </application>
 
 </manifest>

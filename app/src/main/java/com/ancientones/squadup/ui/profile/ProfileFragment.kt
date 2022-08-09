@@ -1,12 +1,12 @@
 package com.ancientones.squadup.ui.profile
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.media.Image
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -20,9 +20,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
 
 class ProfileFragment : Fragment() {
 
@@ -30,27 +27,41 @@ class ProfileFragment : Fragment() {
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
     private lateinit var profileViewModel: ProfileViewModel
-    private lateinit var firebaseStorage: FirebaseStorage
-    private lateinit var storageReference: StorageReference
+    private lateinit var profileImgViewModel: ProfileImgViewModel
+
+    private lateinit var userPictureView: ImageView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         profileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
-        firebaseStorage = Firebase.storage
-        storageReference = firebaseStorage.reference
+        profileImgViewModel = ViewModelProvider(this).get(ProfileImgViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        profileViewModel.fetchUser()
+        profileViewModel.fetchUser(Firebase.database.getReference("Users")
+            .child(Firebase.auth.currentUser!!.uid))
+
+        profileImgViewModel.fetchUserImage()
 
         return root
     }
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        // Handles EditProfileActivity result, if profile is saved -> fetch the profile img again
+        val getEditResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                profileImgViewModel.fetchUserImage()
+                setUserImage()
+            }
+            println(result)
+        }
+
         // Adds an edit button in toolbar
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
@@ -71,7 +82,7 @@ class ProfileFragment : Fragment() {
                     intent.putExtra("userDescription", "${profileViewModel.userDescription.value}")
                     intent.putExtra("userID", Firebase.auth.currentUser!!.uid)
 
-                    startActivity(intent)
+                    getEditResult.launch(intent)
                 }
                 else if (menuItem.itemId == R.id.logoutBtn) {
                     val intent = Intent(requireActivity(), AuthActivity::class.java)
@@ -90,16 +101,7 @@ class ProfileFragment : Fragment() {
         val userPhoneView = view.findViewById<TextView>(R.id.userPhone)
         val userDescriptionView = view.findViewById<TextView>(R.id.userDescription)
         val userRatingView = view.findViewById<RatingBar>(R.id.userRating)
-
-        val userPictureView = view.findViewById<ImageView>(R.id.display_picture)
-        val imageRef = storageReference.child("images/${Firebase.auth.currentUser!!.uid}")
-        imageRef.getBytes(1024 * 1024).addOnSuccessListener {
-            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-            userPictureView.setImageBitmap(bitmap)
-        }.addOnFailureListener {
-            println("DEBUG: User does not currently have a set display photo.")
-            userPictureView.setImageResource(R.drawable.temporary_display_photo)
-        }
+        userPictureView = view.findViewById(R.id.display_picture)
 
         profileViewModel.firstName.observe(requireActivity()) {
             usernameView.text = "${profileViewModel.firstName.value} ${profileViewModel.lastName.value}"
@@ -133,25 +135,26 @@ class ProfileFragment : Fragment() {
             userRatingView.rating = profileViewModel.userRating.value!!.toFloat()
         }
 
-        // TODO: remove after implementing DropInMembersActivity
-        val testBtn = view.findViewById<Button>(R.id.testRateMembers)
-        testBtn.setOnClickListener{
-            val intent = Intent(requireActivity(), DropInMembersActivity::class.java)
-            val mockList = arrayListOf<String>("0GyqfvkvTpNgAc05dhbPKBDTMZw2", "x2Ukx8ngkOQZVyhkBtvUK1QgAqp2",
-            "uv5yBD7hv5WzQ0kTtfm83IfXCFt1", "9bFEiZwOLmNGYD3qrqsx4ZgdjXP2", "jIBpeZvvdeX9MrLonJiJbKUlC2S2",
-            "Ulz6KTXTOOMfHdaMhNM3K9bd6Zq2", "BjMo3n3oPBhPpYDaQMPYWwjiBY02", "9CcVNt8rSnSjiMM7mE344wsvLCB2")
+        profileImgViewModel.userImage.observe(requireActivity()) {
+            setUserImage()
 
-            // Prepare memberList by removing currentUser
-            mockList.filterTo(arrayListOf()) { it != Firebase.auth.currentUser!!.uid }
-
-            intent.putStringArrayListExtra("memberList", mockList)
-            startActivity(intent)
+        profileImgViewModel.hasImage.observe(requireActivity()) {
+            setUserImage()
         }
-
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setUserImage() {
+        if(profileImgViewModel.hasImage.value == true) {
+            userPictureView.setImageBitmap(profileImgViewModel.userImage.value)
+        }
+        else{
+            userPictureView.setImageResource(R.drawable.temporary_display_photo)
+        }
     }
 }
