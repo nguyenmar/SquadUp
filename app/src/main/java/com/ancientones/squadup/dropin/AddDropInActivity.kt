@@ -2,7 +2,7 @@ package com.ancientones.squadup.dropin
 
 import android.location.Geocoder
 import android.os.Bundle
-import android.os.Message
+import android.util.Log
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -12,11 +12,14 @@ import com.ancientones.squadup.databinding.ActivityAddDropInBinding
 import com.ancientones.squadup.ui.chat.ChatActivity
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.io.IOException
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class AddDropInActivity : AppCompatActivity() {
@@ -36,8 +39,15 @@ class AddDropInActivity : AppCompatActivity() {
             saveFireStore()
         }
 
-        name = "George"; // todo: update this
-
+       // set users name
+        Firebase.database.getReference("Users")
+            .child(Firebase.auth.currentUser?.uid.toString())
+            .get()
+            .addOnSuccessListener {
+                Log.i("firebase", "got user: ${it.value}")
+                val userMap: HashMap<String, String> = it.value as HashMap<String, String>
+                name = "${userMap["firstName"]} ${userMap["lastName"]}";
+            }
     }
 
     private fun saveFireStore(){
@@ -75,7 +85,7 @@ class AddDropInActivity : AppCompatActivity() {
                 // create chat
                 val title = "${name}'s ${dropin["sport"]} drop-in";
                 db.collection( ChatActivity.CHAT_COLLECTION_NAME ).document(it.id)
-                    .set( Chat(it.id, title) );
+                    .set( Chat("", it.id, title) );
             }
             .addOnFailureListener {Toast.makeText((this), "Drop-in failed to be created", Toast.LENGTH_SHORT).show()
             }
