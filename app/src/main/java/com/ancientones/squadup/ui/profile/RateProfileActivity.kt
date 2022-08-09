@@ -3,28 +3,25 @@ package com.ancientones.squadup.ui.profile
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityRatingBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
 
 class RateProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRatingBinding
 
     private lateinit var imageView: ImageView
+    private lateinit var profileImgViewModel: ProfileImgViewModel
+
     private lateinit var userID: String // user being rated, passed in through an intent
-//    private lateinit var firstName: String
+    private lateinit var firstName: String
 
     private var hasModifiedRating: Boolean = false
-
-//    private lateinit var firebaseStorage: FirebaseStorage
-//    private lateinit var storageReference: StorageReference
 
     private lateinit var addBtn: Button
     private lateinit var cancelBtn: Button
@@ -38,18 +35,20 @@ class RateProfileActivity : AppCompatActivity() {
         binding = ActivityRatingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        firebaseStorage = Firebase.storage
-//        storageReference = firebaseStorage.reference
-//        imageView = findViewById(R.id.display_picture)
-
-        userID = intent.getStringExtra("userID").toString()
-//        firstName = intent.getStringExtra("firstName").toString()
-        dbRef = Firebase.database.getReference("Users").child(userID)
-
         addBtn = findViewById(R.id.addBtn)
         cancelBtn = findViewById(R.id.cancelBtn)
         description = findViewById(R.id.description)
         ratingBar = findViewById(R.id.teamworkRating)
+        imageView = findViewById(R.id.display_picture)
+
+        userID = intent.getStringExtra("userID").toString()
+        firstName = intent.getStringExtra("firstName").toString()
+        dbRef = Firebase.database.getReference("Users").child(userID)
+
+        profileImgViewModel = ViewModelProvider(this).get(ProfileImgViewModel::class.java)
+        profileImgViewModel.fetchExternalUserImage(userID)
+
+        description.text = "Rate your experience playing with $firstName"
 
         addBtn.setOnClickListener{
             if(hasModifiedRating) {
@@ -64,14 +63,19 @@ class RateProfileActivity : AppCompatActivity() {
             finish()
         }
 
-        dbRef.child("firstName").get().addOnSuccessListener{
-            description.text = "Rate your experience playing with ${it.value.toString()}"
-        }
-
         ratingBar.setOnRatingBarChangeListener { _, _, _ ->
             hasModifiedRating = true
         }
+
+        profileImgViewModel.userImage.observe(this) {
+            setUserImage()
+        }
+
+        profileImgViewModel.hasImage.observe(this) {
+            setUserImage()
+        }
     }
+
 
     private fun saveRating() {
         var hasRated: List<String>
@@ -103,6 +107,15 @@ class RateProfileActivity : AppCompatActivity() {
             println("ratings: $teamworkRatings")
         }
         finish()
+    }
+
+    private fun setUserImage() {
+        if(profileImgViewModel.hasImage.value == true) {
+            imageView.setImageBitmap(profileImgViewModel.userImage.value)
+        }
+        else{
+            imageView.setImageResource(R.drawable.temporary_display_photo)
+        }
     }
 
 }
