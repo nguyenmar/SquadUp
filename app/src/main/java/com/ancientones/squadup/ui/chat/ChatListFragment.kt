@@ -1,7 +1,6 @@
 package com.ancientones.squadup.ui.chat
 
 import android.content.Intent
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.ancientones.squadup.database.models.Chat
 import com.ancientones.squadup.databinding.FragmentChatListBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 
 class ChatListFragment : Fragment() {
 
@@ -18,32 +23,62 @@ class ChatListFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: ChatListViewModel
+    private lateinit var db: FirebaseFirestore;
+    private lateinit var storage: FirebaseStorage;
+    private lateinit var userId: String;
+
+    private lateinit var chatAdapter: ChatListAdapter;
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(ChatListViewModel::class.java);
-
         _binding = FragmentChatListBinding.inflate(inflater, container, false);
         val root: View = binding.root;
-
 
         /** TODO:
          *      Get user object by auth id, then get list of all chats
          *      with list of dropin the user has joined.
          * */
-        val intent = Intent(requireActivity(), ChatActivity::class.java);
-        intent.putExtra(ChatActivity.CHAT_ID_KEY, "1");
-        println("debugx: Launching chat")
-        requireActivity().startActivity(intent);
 
+        db = Firebase.firestore;
+        userId = Firebase.auth.currentUser!!.uid;
+
+
+        // todo: get list of dropins for  user for the list values
+        val query = db.collection( ChatActivity.CHAT_COLLECTION_NAME )
+            .whereArrayContains("members", userId);
+
+        val chatsList: ArrayList<Chat> = arrayListOf();
+        chatAdapter = ChatListAdapter( requireContext(), chatsList );
+
+        // update lists of chats
+        query.addSnapshotListener { chats, error ->
+            println("debugx: listener activated")
+            if( error != null ){
+                println("debugx: chat lisener error: $error");
+                return@addSnapshotListener;
+            }
+            val newChats = ArrayList<Chat>();
+            for( chat in chats!! ){
+                newChats.add( chat.toObject(Chat::class.java) );
+            }
+
+            chatAdapter.replace( newChats );
+            chatAdapter.notifyDataSetChanged();
+        };
+
+        binding.chatList.adapter = chatAdapter;
+        binding.chatList.setOnItemClickListener { parent, view, position, id ->
+            val chat = chatAdapter.getItem(position);
+            val intent = Intent(requireActivity(), ChatActivity::class.java);
+            intent.putExtra(ChatActivity.CHAT_ID_KEY, chat!!.dropIn_id);
+            println("debugx: Launching chat")
+            requireActivity().startActivity(intent);
+        }
 
         return root;
-        // todo: set list view adapter on the collection of chats that user is
-        // todo: can still use firebaseUI to bind a query to
     }
 
     override fun onDestroyView() {
