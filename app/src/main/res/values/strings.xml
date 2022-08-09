@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">SquadUp</string>
+    <!--    Navigation titles-->
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
     <string name="title_chat">Chat</string>
     <string name="title_drop_ins">Drop-ins</string>
     <string name="title_profile">Profile</string>

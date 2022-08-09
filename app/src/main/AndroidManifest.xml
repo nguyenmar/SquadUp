@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-feature android:name="android.hardware.camera" />
 
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -22,6 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SquadUp"
         tools:targetApi="31">
+        <activity
+            android:name="com.ancientones.squadup.ui.chat.ChatActivity"
+            android:exported="false" />
         <activity
             android:name=".dropin.AddDropInActivity"
             android:exported="false" />

@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="grey">#DEDEDE</color>
+    <color name="dark_grey">#303030</color>
+
+    <color name="blue">#2962FF</color>
+
+<!--    todo: add colors for text message box night/day, text received colour night/day and text sent
+                night/day -->
 </resources>

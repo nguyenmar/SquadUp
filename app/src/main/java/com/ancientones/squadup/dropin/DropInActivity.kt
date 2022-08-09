@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.ancientones.squadup.AlertDialogFragment
 import com.ancientones.squadup.R
 import com.ancientones.squadup.databinding.ActivityDropInBinding
+import com.ancientones.squadup.ui.chat.ChatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -145,6 +146,13 @@ class DropInActivity : AppCompatActivity(), OnMapReadyCallback{
                     joinDropIn()
                 }
             }
+        }
+
+        // Open chat button
+        binding.openChatButton.setOnClickListener {
+            val chatIntent = Intent(this, ChatActivity::class.java);
+            chatIntent.putExtra( ChatActivity.CHAT_ID_KEY, documentID );
+            startActivity( chatIntent );
         }
     }
 
