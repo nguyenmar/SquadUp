@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResult
@@ -23,6 +24,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.ancientones.squadup.BuildConfig
 import com.ancientones.squadup.database.models.Chat
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
@@ -46,6 +49,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth;
     private lateinit var manager: LinearLayoutManager;
     private lateinit var messageAdapter: MessageAdapter;
+    private lateinit var name: String;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,25 +70,8 @@ class ChatActivity : AppCompatActivity() {
             binding.messageEditBox.setText(msg);
         }
 
-        // auth
-//        auth = Firebase.auth;
-//        if(auth.currentUser == null ){
-//            // todo: launch something, for now comment out
-//        }
-
-        // db setup
-        // for local only, todo: comment out later
-//        if( BuildConfig.DEBUG ){
-//            try{
-//                Firebase.firestore.useEmulator("10.0.2.2", 8080);
-//                val settings = FirebaseFirestoreSettings.Builder()
-//                    .setPersistenceEnabled(false).build();
-//                Firebase.firestore.firestoreSettings = settings;
-//
-//                // todo: setup storage firebase emulator
-//                //Firebase.storage.useEmulator("10.0.2.2", 9099);
-//            } catch (e: Exception){}
-//        }
+        // Firebase
+        auth = Firebase.auth;
         db = Firebase.firestore;
         storage = Firebase.storage;
 
@@ -102,26 +89,38 @@ class ChatActivity : AppCompatActivity() {
             .setQuery(query, Message::class.java)
             .build();
 
-        messageAdapter = MessageAdapter(options, "titanvj"); // todo: figure out how to get name here?
+        Firebase.database.getReference("Users")
+            .child(Firebase.auth.currentUser?.uid.toString())
+            .get()
+            .addOnSuccessListener {
+                println("debugx: setting name")
+                val userMap: HashMap<String, String> = it.value as HashMap<String, String>
+                name = "${userMap["firstName"]} ${userMap["lastName"]}";
 
-        manager = LinearLayoutManager(this);
-        manager.stackFromEnd = true;
 
-        binding.chatRecyclerView.layoutManager = manager;
-        binding.chatRecyclerView.adapter = messageAdapter;
+                messageAdapter = MessageAdapter(options, name); // todo: figure out how to get name here?
 
-        messageAdapter.registerAdapterDataObserver(
-            NewMessageListener(binding.chatRecyclerView, messageAdapter, manager)
-        );
+                manager = LinearLayoutManager(this);
+                manager.stackFromEnd = true;
 
-        messageAdapter.startListening();
+                binding.chatRecyclerView.layoutManager = manager;
+                binding.chatRecyclerView.adapter = messageAdapter;
+
+                messageAdapter.registerAdapterDataObserver(
+                    NewMessageListener(binding.chatRecyclerView, messageAdapter, manager)
+                );
+
+                messageAdapter.startListening();
+            }.addOnFailureListener{
+                println("debugx: fail $it")
+            }
 
         binding.sendButton.setOnClickListener {
             if( binding.messageEditBox.text.isNotEmpty() ) {
                 val message = Message(
                     "",
-                    "titanvj",
-                    "xxxxxxxxx",
+                    name,
+                    auth.currentUser!!.uid,
                     binding.messageEditBox.text.toString().trim()
                 );
                 db.collection(CHAT_COLLECTION_NAME).document(chat_id)
@@ -138,6 +137,10 @@ class ChatActivity : AppCompatActivity() {
         // set result handler
         imageResult = registerForActivityResult( ActivityResultContracts.StartActivityForResult() ) {
             result: ActivityResult ->
+            if( result.resultCode == RESULT_CANCELED ){
+                return@registerForActivityResult;
+            }
+
             val image: Uri = result.data!!.data!!;
 
             // get msg, with a generated id for the image
@@ -150,8 +153,8 @@ class ChatActivity : AppCompatActivity() {
                 it.metadata!!.reference!!.downloadUrl.addOnSuccessListener { downloadUri ->
                     val msg = Message(
                         "",
-                        "titanvj",
-                        "xxxx",
+                        name,
+                        auth.currentUser!!.uid,
                         null, // leave msg null
                         downloadUri.toString()
                     );
@@ -195,13 +198,13 @@ class ChatActivity : AppCompatActivity() {
         messageAdapter.stopListening();
     }
 
-    override fun onPause() {
-        messageAdapter.stopListening();
-        super.onPause();
-    }
-
-    override fun onResume() {
-        super.onResume();
-        messageAdapter.startListening();
-    }
+//    override fun onPause() {
+//        messageAdapter.stopListening();
+//        super.onPause();
+//    }
+//
+//    override fun onResume() {
+//        super.onResume();
+//        messageAdapter.startListening();
+//    }
 }
